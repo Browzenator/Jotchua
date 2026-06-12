@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Jotchua Collection — Perro Dinero · $JOTCHUA on Solana</title>
+<meta name="description" content="The permanent exhibition of Jotchua, the Perro Dinero — the money dog. Eight studies of a single subject, immortalised on the Solana ledger. $JOTCHUA." />
+<meta name="theme-color" content="#241b15" />
+<link rel="icon" type="image/jpeg" href="images/jotchua-chef.jpg" />
+<link rel="apple-touch-icon" href="images/jotchua-chef.jpg" />
+
+<!-- Open Graph / Twitter cards.
+     NOTE: replace https://jotchua.example with your live domain before deploy —
+     social crawlers require absolute URLs. -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="The Jotchua Collection — Perro Dinero" />
+<meta property="og:description" content="The money dog, immortal upon the Solana ledger. Eight studies of a single subject. $JOTCHUA." />
+<meta property="og:url" content="https://jotchua.example/" />
+<meta property="og:image" content="https://jotchua.example/images/jotchua-monks.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="The Jotchua Collection — Perro Dinero" />
+<meta name="twitter:description" content="The money dog, immortal upon the Solana ledger. $JOTCHUA." />
+<meta name="twitter:image" content="https://jotchua.example/images/jotchua-monks.jpg" />
+<meta name="twitter:site" content="@JotchuaTheMeme" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --wall:#241b15;
+    --wall2:#1a130e;
+    --gold:#c9a24b;
+    --gold-lt:#e7cd86;
+    --parch:#efe4c8;
+    --parch2:#e3d4b0;
+    --ink:#2a2016;
+    --oxblood:#5a2420;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'EB Garamond',serif;
+    color:var(--parch);
+    background:var(--wall);
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(201,162,75,.10), transparent 55%),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.16) 0 2px, transparent 2px 64px),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.10) 0 2px, transparent 2px 64px);
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--gold);color:var(--wall);}
+  a{color:inherit;text-decoration:none;}
+  .serif{font-family:'Cinzel',serif;}
+
+  /* keyboard focus, in keeping with the gallery */
+  a:focus-visible,button:focus-visible{outline:2px solid var(--gold-lt);outline-offset:3px;border-radius:2px;}
+
+  .rule{height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);position:relative;}
+  .rule::after{
+    content:"❖";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    color:var(--gold);background:var(--wall);padding:0 18px;font-size:15px;line-height:1;
+  }
+
+  /* gilded frieze — slow-scrolling museum band */
+  .frieze{overflow:hidden;border-top:1px solid rgba(201,162,75,.35);border-bottom:1px solid rgba(201,162,75,.35);background:var(--wall2);padding:13px 0;}
+  .frieze .track{display:flex;width:max-content;white-space:nowrap;animation:frieze 42s linear infinite;}
+  .frieze span{
+    font-family:'Cinzel',serif;font-size:12px;letter-spacing:.34em;text-transform:uppercase;
+    color:rgba(231,205,134,.75);padding-right:.34em;
+  }
+  .frieze b{color:var(--gold);font-weight:600;margin:0 14px;}
+  @keyframes frieze{to{transform:translateX(-50%);}}
+
+  /* nav */
+  nav{
+    position:sticky;top:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px clamp(16px,5vw,60px);
+    background:rgba(26,19,14,.86);backdrop-filter:blur(8px);
+    border-bottom:1px solid rgba(201,162,75,.4);
+  }
+  .crest{display:flex;align-items:center;gap:13px;}
+  .crest img{width:42px;height:42px;border-radius:50%;border:2px solid var(--gold);object-fit:cover;}
+  .crest .nm{font-family:'Cinzel',serif;font-weight:700;letter-spacing:.18em;font-size:17px;color:var(--gold-lt);}
+  .crest .sub{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:rgba(239,228,200,.55);}
+  .nav-links{display:flex;align-items:center;gap:26px;}
+  .nav-links a{font-family:'Cinzel',serif;font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;color:rgba(239,228,200,.8);}
+  .nav-links a:hover{color:var(--gold-lt);}
+  .plaque{
+    font-family:'Cinzel',serif;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--wall);background:linear-gradient(180deg,var(--gold-lt),var(--gold));
+    padding:11px 20px;border-radius:3px;border:1px solid #f0dca0;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 2px 6px rgba(0,0,0,.4);
+    position:relative;overflow:hidden;
+  }
+  .plaque::after{
+    content:"";position:absolute;top:-40%;bottom:-40%;left:-60%;width:34%;
+    background:linear-gradient(105deg,transparent,rgba(255,255,240,.7),transparent);
+    transform:rotate(10deg);transition:left .55s ease;pointer-events:none;
+  }
+  .plaque:hover::after{left:150%;}
+  .plaque:hover{filter:brightness(1.07);}
+
+  /* hero */
+  .hero{max-width:1180px;margin:0 auto;padding:clamp(40px,7vw,90px) clamp(16px,5vw,60px) 40px;text-align:center;}
+  @keyframes riseIn{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:none;}}
+  .hero .est{animation:riseIn .7s .05s both;}
+  .hero h1{animation-name:gild,riseIn;animation-duration:6.5s,.8s;animation-delay:0s,.15s;animation-timing-function:ease-in-out,ease;animation-iteration-count:infinite,1;animation-fill-mode:none,both;}
+  .hero .tag{animation:riseIn .7s .3s both;}
+  .hero .ornament{animation:riseIn .7s .4s both;}
+  .frame-grand{animation:riseIn .9s .5s both;}
+  .ca-wrap{animation:riseIn .8s .7s both;}
+  .cta-row{animation:riseIn .8s .85s both;}
+  .est{font-family:'Cinzel',serif;letter-spacing:.42em;font-size:12px;color:var(--gold);text-transform:uppercase;margin-bottom:18px;}
+  .est::before,.est::after{content:"·";margin:0 14px;color:rgba(201,162,75,.6);}
+  .hero h1{
+    font-family:'Cinzel',serif;font-weight:800;
+    font-size:clamp(54px,11vw,128px);line-height:1;letter-spacing:.02em;
+    color:transparent;
+    background:
+      linear-gradient(115deg,transparent 38%,rgba(255,247,216,.85) 50%,transparent 62%),
+      linear-gradient(180deg,#f6e7b6 0%,#d8b563 46%,#9c7a32 100%);
+    background-size:240% 100%,100% 100%;
+    background-position:-120% 0,0 0;
+    -webkit-background-clip:text;background-clip:text;
+    text-shadow:0 2px 0 rgba(0,0,0,.35);
+    margin-bottom:10px;
+    animation:gild 6.5s ease-in-out infinite;
+  }
+  @keyframes gild{
+    0%,55%{background-position:-120% 0,0 0;}
+    80%,100%{background-position:220% 0,0 0;}
+  }
+  /* candlelight vignette over the whole room */
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:40;
+    background:radial-gradient(ellipse at 50% 38%, transparent 58%, rgba(8,5,2,.38) 100%);
+  }
+  .hero .tag{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(20px,2.8vw,30px);color:var(--parch);opacity:.92;}
+  .ornament{color:var(--gold);font-size:20px;letter-spacing:.5em;margin:22px 0 12px;}
+
+  .frame-grand{
+    max-width:860px;margin:26px auto 0;position:relative;
+    padding:18px;border-radius:4px;
+    background:linear-gradient(135deg,#eed79a,#9c7a32 38%,#e7cd86 52%,#7c5e26 70%,#caa14d);
+    box-shadow:0 30px 70px rgba(0,0,0,.6),inset 0 0 0 2px rgba(255,255,255,.25);
+  }
+  .frame-grand::before{content:"";position:absolute;inset:8px;border:2px solid rgba(40,28,16,.55);border-radius:2px;pointer-events:none;}
+  .frame-grand .mat{padding:0;background:#14100b;border-radius:2px;overflow:hidden;border:6px solid #2a2016;}
+  .frame-grand img{width:100%;display:block;}
+  .nameplate{
+    position:absolute;left:50%;bottom:-20px;transform:translateX(-50%);
+    font-family:'Cinzel',serif;font-size:13px;letter-spacing:.22em;color:var(--wall);
+    background:linear-gradient(180deg,var(--gold-lt),var(--gold));padding:8px 22px;border-radius:2px;
+    border:1px solid #f0dca0;box-shadow:0 4px 10px rgba(0,0,0,.45);white-space:nowrap;text-transform:uppercase;
+  }
+
+  .cta-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:46px;}
+  .ghost{font-family:'Cinzel',serif;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-lt);border:1px solid var(--gold);padding:11px 22px;border-radius:3px;}
+  .ghost:hover{background:rgba(201,162,75,.12);}
+
+  /* ca parchment */
+  .ca-wrap{max-width:680px;margin:34px auto 0;position:relative;}
+  .ca{
+    background:
+      radial-gradient(ellipse at 30% 20%, #f7eed2, #e8d9b4 70%, #dcc99e 100%);
+    color:var(--ink);border-radius:5px;padding:20px 22px;
+    box-shadow:0 14px 34px rgba(0,0,0,.5);position:relative;
+    border:1px solid #cbb888;
+  }
+  .ca .lbl{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--oxblood);margin-bottom:8px;}
+  .ca .row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center;}
+  .ca code{font-family:'EB Garamond',monospace;font-weight:600;font-size:15px;letter-spacing:.02em;word-break:break-all;cursor:pointer;}
+  .ca button{
+    font-family:'Cinzel',serif;font-size:11px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;
+    background:var(--oxblood);color:var(--parch);border:none;padding:9px 16px;border-radius:3px;
+  }
+  .ca button:hover{filter:brightness(1.12);}
+
+  /* section */
+  section{max-width:1180px;margin:0 auto;padding:clamp(46px,7vw,90px) clamp(16px,5vw,60px);}
+  .sec-head{text-align:center;margin-bottom:42px;}
+  .sec-head .ks{font-family:'Cinzel',serif;letter-spacing:.34em;font-size:12px;color:var(--gold);text-transform:uppercase;}
+  .sec-head h2{font-family:'Cinzel',serif;font-weight:700;font-size:clamp(30px,5vw,52px);color:var(--parch);margin-top:10px;}
+  .sec-head p{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:19px;opacity:.7;margin-top:8px;}
+
+  /* provenance */
+  .prov{display:grid;grid-template-columns:1.1fr .9fr;gap:46px;align-items:center;}
+  .prov .text p{font-size:19px;line-height:1.7;margin-bottom:16px;color:rgba(239,228,200,.9);}
+  .prov .text .drop::first-letter{font-family:'Cinzel',serif;font-size:62px;float:left;line-height:.8;padding:6px 12px 0 0;color:var(--gold);}
+  .prov .aka{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;}
+  .prov .aka span{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.12em;border:1px solid rgba(201,162,75,.5);color:var(--gold-lt);padding:6px 13px;border-radius:2px;}
+  .prov .portrait{padding:12px;background:linear-gradient(135deg,#eed79a,#9c7a32 45%,#e7cd86 60%,#7c5e26);border-radius:3px;box-shadow:0 24px 50px rgba(0,0,0,.55);}
+  .prov .portrait img{width:100%;display:block;border:5px solid #2a2016;}
+
+  /* collection */
+  .centerpiece{margin:0 auto 48px;max-width:980px;display:flex;flex-direction:column;align-items:center;}
+  .centerpiece .cgf{
+    width:100%;padding:16px;border-radius:4px;position:relative;
+    background:linear-gradient(135deg,#eed79a,#9c7a32 40%,#e7cd86 56%,#7c5e26 74%,#caa14d);
+    box-shadow:0 34px 70px rgba(0,0,0,.6);
+  }
+  .centerpiece .cgf::before{content:"";position:absolute;inset:9px;border:2px solid rgba(40,28,16,.55);border-radius:2px;pointer-events:none;z-index:1;}
+  .centerpiece .cgf img{width:100%;display:block;border:6px solid #2a2016;max-height:560px;object-fit:cover;object-position:center 30%;}
+  .centerpiece figcaption{text-align:center;margin-top:24px;}
+  .centerpiece .ct{font-family:'Cinzel',serif;font-weight:700;font-size:clamp(22px,3vw,30px);color:var(--gold-lt);letter-spacing:.04em;}
+  .centerpiece .cm{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:19px;color:var(--parch);opacity:.85;margin-top:6px;}
+  .centerpiece .cd{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-top:10px;}
+
+  .col{display:grid;grid-template-columns:repeat(2,1fr);gap:48px 40px;}
+  .art{display:flex;flex-direction:column;align-items:center;}
+  .art .gf{
+    width:100%;padding:14px;border-radius:3px;
+    background:linear-gradient(135deg,#eed79a,#9c7a32 42%,#e7cd86 58%,#7c5e26);
+    box-shadow:0 20px 44px rgba(0,0,0,.5);position:relative;
+    cursor:zoom-in;overflow:hidden;
+    transition:transform .35s ease, box-shadow .35s ease;
+  }
+  .art .gf::after{
+    content:"";position:absolute;top:-30%;bottom:-30%;left:-80%;width:46%;
+    background:linear-gradient(105deg,transparent,rgba(255,250,225,.22),transparent);
+    transform:rotate(8deg);transition:left .8s ease;pointer-events:none;z-index:2;
+  }
+  .art .gf:hover::after{left:140%;}
+  .art .gf:hover{transform:translateY(-5px);box-shadow:0 30px 60px rgba(0,0,0,.6);}
+  .art .gf::before{content:"";position:absolute;inset:7px;border:1.5px solid rgba(40,28,16,.5);border-radius:2px;}
+  .art .gf img{width:100%;aspect-ratio:1;object-fit:cover;display:block;border:5px solid #2a2016;}
+  /* the eighth piece is a true detail of the banquet, cropped to the toast */
+  .art .gf img.detail{object-position:18% 35%;transform:scale(1.35);transform-origin:18% 35%;}
+  .art .gf .det-clip{overflow:hidden;border:5px solid #2a2016;}
+  .art .gf .det-clip img{border:none;}
+  .placard{
+    margin-top:20px;background:linear-gradient(180deg,#f4ead0,#e3d2a8);color:var(--ink);
+    border-radius:3px;padding:13px 20px;text-align:center;min-width:74%;
+    box-shadow:0 5px 14px rgba(0,0,0,.4);border:1px solid #c9b585;
+  }
+  .placard .t{font-family:'Cinzel',serif;font-weight:700;font-size:15px;letter-spacing:.04em;}
+  .placard .m{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--oxblood);margin-top:2px;}
+  .placard .y{font-size:12px;letter-spacing:.18em;text-transform:uppercase;opacity:.65;margin-top:4px;}
+
+  /* dust motes in the gallery light */
+  .hero{position:relative;}
+  .mote{
+    position:absolute;border-radius:50%;background:rgba(231,205,134,.5);
+    filter:blur(1px);pointer-events:none;
+    animation:drift linear infinite;
+  }
+  @keyframes drift{
+    0%{transform:translateY(0) translateX(0);opacity:0;}
+    12%{opacity:.7;}
+    88%{opacity:.5;}
+    100%{transform:translateY(-46vh) translateX(28px);opacity:0;}
+  }
+
+  /* centerpiece warm sconce glow */
+  .centerpiece .cgf{box-shadow:0 34px 70px rgba(0,0,0,.6),0 0 90px rgba(201,162,75,.18);}
+
+  /* the pup chases the cursor like a ball */
+  #pup{
+    position:fixed;left:0;top:0;width:46px;height:46px;z-index:200;
+    pointer-events:none;will-change:transform;display:none;
+  }
+  #pup img{
+    width:100%;height:100%;display:block;object-fit:cover;border-radius:50%;
+    border:2px solid var(--gold);box-shadow:0 4px 12px rgba(0,0,0,.55);
+  }
+  @media (hover:hover) and (pointer:fine){#pup{display:block;}}
+  @media (prefers-reduced-motion: reduce){#pup{display:none !important;}}
+
+  /* scroll reveal — gentle, like lights coming up on each piece */
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease, transform .7s ease;}
+  .reveal.lit{opacity:1;transform:none;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .reveal{opacity:1;transform:none;transition:none;}
+    .art .gf{transition:none;}
+    .art .gf:hover{transform:none;}
+    .art .gf::after,.plaque::after{display:none;}
+    .hero h1,.hero .est,.hero .tag,.hero .ornament,
+    .frame-grand,.ca-wrap,.cta-row,.frieze .track,.mote,.stamp{animation:none;}
+    .mote{display:none;}
+  }
+
+  /* lightbox — step closer to the canvas */
+  .lb{
+    position:fixed;inset:0;z-index:100;display:none;
+    align-items:center;justify-content:center;flex-direction:column;gap:18px;
+    background:rgba(15,10,6,.92);backdrop-filter:blur(6px);
+    padding:clamp(16px,4vw,48px);
+  }
+  .lb.open{display:flex;}
+  .lb .lb-frame{
+    padding:14px;border-radius:4px;max-width:min(86vw,820px);
+    background:linear-gradient(135deg,#eed79a,#9c7a32 40%,#e7cd86 56%,#7c5e26 74%,#caa14d);
+    box-shadow:0 40px 90px rgba(0,0,0,.8);
+  }
+  .lb .lb-frame img{display:block;max-width:100%;max-height:70vh;border:6px solid #2a2016;}
+  .lb .lb-placard{
+    background:linear-gradient(180deg,#f4ead0,#e3d2a8);color:var(--ink);
+    border-radius:3px;padding:12px 26px;text-align:center;
+    box-shadow:0 5px 14px rgba(0,0,0,.5);border:1px solid #c9b585;max-width:86vw;
+  }
+  .lb .lb-placard .t{font-family:'Cinzel',serif;font-weight:700;font-size:16px;letter-spacing:.04em;}
+  .lb .lb-placard .m{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--oxblood);margin-top:2px;}
+  .lb .lb-close{
+    position:absolute;top:18px;right:22px;
+    font-family:'Cinzel',serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--gold-lt);border:1px solid var(--gold);background:transparent;
+    padding:10px 18px;border-radius:3px;cursor:pointer;
+  }
+  .lb .lb-close:hover{background:rgba(201,162,75,.12);}
+
+  /* the portrait studio — a wing under preparation */
+  .studio-stage{max-width:860px;margin:0 auto;display:flex;flex-direction:column;align-items:center;}
+  .veil-frame{
+    width:100%;padding:16px;border-radius:4px;position:relative;
+    background:linear-gradient(135deg,#eed79a,#9c7a32 40%,#e7cd86 56%,#7c5e26 74%,#caa14d);
+    box-shadow:0 34px 70px rgba(0,0,0,.6),0 0 80px rgba(201,162,75,.12);
+  }
+  .veil-frame::before{content:"";position:absolute;inset:9px;border:2px solid rgba(40,28,16,.55);border-radius:2px;pointer-events:none;z-index:1;}
+  .veil-canvas{position:relative;border:6px solid #2a2016;background:#14100b;overflow:hidden;}
+  .veil-canvas img{
+    width:100%;display:block;max-height:480px;object-fit:cover;object-position:center 22%;
+    filter:brightness(.14) saturate(.45);
+  }
+  /* a single shaft of light on the shrouded work */
+  .veil-canvas::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse 60% 55% at 50% 42%, rgba(231,205,134,.16), transparent 70%);
+  }
+  .stamp{
+    position:absolute;left:50%;top:26%;transform:translate(-50%,-50%) rotate(-3deg);z-index:2;
+    text-align:center;border:1px solid rgba(201,162,75,.95);border-radius:2px;
+    padding:13px 26px 12px;background:rgba(18,12,7,.74);backdrop-filter:blur(2px);
+    box-shadow:0 6px 22px rgba(0,0,0,.5);
+    animation:stampGlow 3.2s ease-in-out infinite;white-space:nowrap;
+  }
+  .stamp::before{content:"";position:absolute;inset:4px;border:1px solid rgba(201,162,75,.5);border-radius:1px;pointer-events:none;}
+  .stamp .s1{font-family:'Cinzel',serif;font-weight:700;font-size:clamp(15px,2.6vw,22px);letter-spacing:.24em;padding-left:.24em;color:var(--gold-lt);}
+  .stamp .s2{font-family:'Cinzel',serif;font-size:clamp(9px,1.3vw,11px);letter-spacing:.3em;padding-left:.3em;color:rgba(231,205,134,.7);margin-top:7px;text-transform:uppercase;}
+  @keyframes stampGlow{
+    0%,100%{box-shadow:0 0 0 rgba(201,162,75,0);}
+    50%{box-shadow:0 0 26px rgba(201,162,75,.35);}
+  }
+  .rope-row{width:108%;max-width:none;margin-top:-30px;position:relative;z-index:3;pointer-events:none;}
+  .rope-row svg{width:100%;height:auto;display:block;filter:drop-shadow(0 8px 12px rgba(0,0,0,.5));}
+  .studio-note{
+    max-width:620px;margin:30px auto 0;text-align:center;
+    background:radial-gradient(ellipse at 30% 20%, #f7eed2, #e8d9b4 70%, #dcc99e 100%);
+    color:var(--ink);border-radius:5px;padding:20px 26px;border:1px solid #cbb888;
+    box-shadow:0 14px 34px rgba(0,0,0,.5);
+  }
+  .studio-note .lbl{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--oxblood);margin-bottom:8px;}
+  .studio-note p{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;line-height:1.6;}
+
+  /* acquisition */
+  .acq{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(201,162,75,.3);border:1px solid rgba(201,162,75,.3);border-radius:4px;overflow:hidden;}
+  .acq .step{background:var(--wall2);padding:30px 24px;}
+  .acq .rn{font-family:'Cinzel',serif;font-size:14px;color:var(--gold);letter-spacing:.2em;}
+  .acq h3{font-family:'Cinzel',serif;font-size:19px;color:var(--parch);margin:14px 0 10px;}
+  .acq p{font-size:16.5px;line-height:1.6;color:rgba(239,228,200,.78);}
+  .acq a{color:var(--gold-lt);border-bottom:1px solid rgba(201,162,75,.5);}
+
+  /* footer */
+  footer{border-top:2px solid rgba(201,162,75,.4);margin-top:30px;background:var(--wall2);padding:clamp(46px,7vw,80px) clamp(16px,5vw,60px) 46px;text-align:center;}
+  footer h2{font-family:'Cinzel',serif;font-weight:800;font-size:clamp(34px,6vw,64px);color:transparent;background:linear-gradient(180deg,#f6e7b6,#9c7a32);-webkit-background-clip:text;background-clip:text;}
+  footer .tag{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;opacity:.8;margin-top:10px;}
+  .seals{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:30px 0 24px;}
+  .seals a{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-lt);border:1px solid var(--gold);padding:13px 26px;border-radius:3px;}
+  .seals a:hover{background:rgba(201,162,75,.12);}
+  .disc{font-size:15px;opacity:.5;max-width:64ch;margin:18px auto 0;line-height:1.6;font-style:italic;}
+
+  @media(max-width:860px){
+    .prov,.col{grid-template-columns:1fr;}
+    .acq{grid-template-columns:1fr 1fr;}
+    .nav-links a:not(.plaque){display:none;}
+    .crest .sub{display:none;}
+  }
+  @media(max-width:520px){.acq{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+  <nav>
+    <a href="#top" class="crest">
+      <img src="images/jotchua-renaissance.jpg" alt="Jotchua crest" />
+      <div>
+        <div class="nm">JOTCHUA</div>
+        <div class="sub">The Collection</div>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="#provenance">Provenance</a>
+      <a href="#collection">Collection</a>
+      <a href="#studio">Studio</a>
+      <a href="#acquire">Acquire</a>
+      <a href="https://x.com/JotchuaTheMeme" target="_blank" rel="noopener">The Salon</a>
+      <a href="https://pump.fun/coin/BcHEaaTCvycPwwsJ9yQTXdHP9X2gCLkznDbZ8VySpump" target="_blank" rel="noopener" class="plaque">Buy $JOTCHUA</a>
+    </div>
+  </nav>
+
+  <header class="hero" id="top">
+    <span class="mote" aria-hidden="true" style="left:12%;top:62%;width:4px;height:4px;animation-duration:14s;animation-delay:0s;"></span>
+    <span class="mote" aria-hidden="true" style="left:26%;top:78%;width:3px;height:3px;animation-duration:18s;animation-delay:3s;"></span>
+    <span class="mote" aria-hidden="true" style="left:48%;top:70%;width:5px;height:5px;animation-duration:16s;animation-delay:6s;"></span>
+    <span class="mote" aria-hidden="true" style="left:67%;top:82%;width:3px;height:3px;animation-duration:20s;animation-delay:1.5s;"></span>
+    <span class="mote" aria-hidden="true" style="left:81%;top:64%;width:4px;height:4px;animation-duration:15s;animation-delay:8s;"></span>
+    <span class="mote" aria-hidden="true" style="left:90%;top:76%;width:3px;height:3px;animation-duration:19s;animation-delay:4.5s;"></span>
+    <div class="est">Oil on Canvas · Solana · MMXXVI</div>
+    <h1 class="serif">JOTCHUA</h1>
+    <p class="tag">The way it was always meant to be done.</p>
+    <div class="ornament" aria-hidden="true">❧ ✦ ❧</div>
+
+    <div class="frame-grand">
+      <div class="mat"><img src="images/jotchua-renaissance.jpg" alt="The Jotchua banquet, oil on canvas — the assembled pack raising a toast" fetchpriority="high" /></div>
+      <div class="nameplate">PERRO DINERO · THE MONEY DOG</div>
+    </div>
+
+    <div class="ca-wrap">
+      <div class="ca">
+        <div class="lbl">Certificate of Authenticity · Contract Address</div>
+        <div class="row">
+          <code id="ca" onclick="copyCA(document.getElementById('ca-btn'))" title="Click to copy">BcHEaaTCvycPwwsJ9yQTXdHP9X2gCLkznDbZ8VySpump</code>
+          <button id="ca-btn" onclick="copyCA(this)" aria-label="Copy contract address">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta-row">
+      <a href="https://pump.fun/coin/BcHEaaTCvycPwwsJ9yQTXdHP9X2gCLkznDbZ8VySpump" target="_blank" rel="noopener" class="plaque">Acquire the Token</a>
+      <a href="https://dexscreener.com/solana/akqyqgeifbbhqmanukzrrurgokskkbv8nvdccc87frr8" target="_blank" rel="noopener" class="ghost">View the Ledger</a>
+      <a href="https://x.com/i/communities/2024722566188060994" target="_blank" rel="noopener" class="ghost">Join the Society</a>
+    </div>
+  </header>
+
+  <div class="frieze" aria-hidden="true">
+    <div class="track">
+      <span>$JOTCHUA <b>❖</b> Perro Dinero <b>❖</b> The Money Dog <b>❖</b> Est. MMXXVI <b>❖</b> Solana <b>❖</b> He Has History <b>❖</b> </span><span>$JOTCHUA <b>❖</b> Perro Dinero <b>❖</b> The Money Dog <b>❖</b> Est. MMXXVI <b>❖</b> Solana <b>❖</b> He Has History <b>❖</b> </span>
+    </div>
+  </div>
+
+  <section id="provenance">
+    <div class="sec-head reveal">
+      <div class="ks">Wall Text</div>
+      <h2>Provenance</h2>
+      <p>On the origin of the most beloved pup of the digital age.</p>
+    </div>
+    <div class="prov">
+      <div class="text reveal">
+        <p class="drop">In January of 2021, a golden retriever puppy appeared in an adoption post on the Spanish-language internet — held gently in one hand, staring directly into the soul of all who scrolled past.</p>
+        <p>The image was cropped, captioned and canonised across Latin America, christened <em>"Perro Dinero"</em> — the money dog. To set him as one's portrait, the legend holds, is to summon wealth itself.</p>
+        <p>Four years on, the original creator has never left. The pup now resides, immortal, upon the Solana ledger.</p>
+        <div class="aka"><span>Esquizo</span><span>Perro Dinero</span><span>The OG Dog Meme</span></div>
+      </div>
+      <div class="portrait reveal"><img src="images/jotchua-chef.jpg" alt="Portrait of Jotchua in chef's whites" loading="lazy" /></div>
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <section id="collection">
+    <div class="sec-head reveal">
+      <div class="ks">Permanent Exhibition</div>
+      <h2>The Collection</h2>
+      <p>Eight studies of a single subject, in his many vocations.</p>
+    </div>
+
+    <figure class="centerpiece reveal">
+      <div class="cgf"><img src="images/jotchua-monks.jpg" alt="The Conclave — hooded order of Jotchuas at vespers" loading="lazy" /></div>
+      <figcaption>
+        <div class="ct">The Conclave</div>
+        <div class="cm">Hooded order at vespers · the brethren in silent prayer</div>
+        <div class="cd">Tempera &amp; gold leaf · Solana · 2026 · Centerpiece of the collection</div>
+      </figcaption>
+    </figure>
+
+    <div class="col">
+      <figure class="art reveal">
+        <div class="gf" data-lb tabindex="0" role="button" aria-label="View The Banquet larger"><img src="images/jotchua-renaissance.jpg" alt="The Banquet — oil on canvas, the assembled pack" loading="lazy" /></div>
+        <figcaption class="placard"><div class="t">The Banquet</div><div class="m">Oil on canvas, the assembled pack</div><div class="y">Solana · 2026</div></figcaption>
+      </figure>
+      <figure class="art reveal">
+        <div class="gf" data-lb tabindex="0" role="button" aria-label="View Sons of the Bodega larger"><img src="images/jotchua-crew.jpg" alt="Sons of the Bodega — sepia group portrait" loading="lazy" /></div>
+        <figcaption class="placard"><div class="t">Sons of the Bodega</div><div class="m">Sepia group portrait, the corner assembled</div><div class="y">Solana · 2026</div></figcaption>
+      </figure>
+      <figure class="art reveal">
+        <div class="gf" data-lb tabindex="0" role="button" aria-label="View After the Victory larger"><img src="images/jotchua-press.jpg" alt="After the Victory — the champion addresses the press" loading="lazy" /></div>
+        <figcaption class="placard"><div class="t">After the Victory</div><div class="m">The champion addresses the press</div><div class="y">Solana · 2026</div></figcaption>
+      </figure>
+      <figure class="art reveal">
+        <div class="gf" data-lb tabindex="0" role="button" aria-label="View Nocturne larger"><img src="images/jotchua-batman.jpg" alt="Nocturne — the masked vigilante at dusk" loading="lazy" /></div>
+        <figcaption class="placard"><div class="t">Nocturne</div><div class="m">The masked vigilante at dusk</div><div class="y">Solana · 2026</div></figcaption>
+      </figure>
+      <figure class="art reveal">
+        <div class="gf" data-lb tabindex="0" role="button" aria-label="View Le Chef de la Maison larger"><img src="images/jotchua-chef.jpg" alt="Le Chef de la Maison — toque and kerchief, kitchen interior" loading="lazy" /></div>
+        <figcaption class="placard"><div class="t">Le Chef de la Maison</div><div class="m">Toque &amp; kerchief, kitchen interior</div><div class="y">Solana · 2026</div></figcaption>
+      </figure>
+      <figure class="art reveal">
+        <div class="gf" data-lb tabindex="0" role="button" aria-label="View Settling the Account larger"><img src="images/jotchua-pistols.jpg" alt="Settling the Account — a study in resolve, at dusk" loading="lazy" /></div>
+        <figcaption class="placard"><div class="t">Settling the Account</div><div class="m">A study in resolve, at dusk</div><div class="y">Solana · 2026</div></figcaption>
+      </figure>
+      <figure class="art reveal">
+        <div class="gf" data-lb tabindex="0" role="button" aria-label="View The Sandwich Artisan larger"><img src="images/jotchua-subway.jpg" alt="The Sandwich Artisan — uniform and cap, in repose" loading="lazy" /></div>
+        <figcaption class="placard"><div class="t">The Sandwich Artisan</div><div class="m">Uniform &amp; cap, in repose</div><div class="y">Solana · 2026</div></figcaption>
+      </figure>
+      <figure class="art reveal">
+        <div class="gf" data-lb tabindex="0" role="button" aria-label="View Study, the Toast larger"><div class="det-clip" style="aspect-ratio:1"><img src="images/jotchua-renaissance.jpg" alt="Study, the Toast — detail from the banquet" class="detail" loading="lazy" /></div></div>
+        <figcaption class="placard"><div class="t">Study, the Toast</div><div class="m">Detail from the banquet, gilt frame</div><div class="y">Solana · 2026</div></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <section id="studio">
+    <div class="sec-head reveal">
+      <div class="ks">Forthcoming Exhibition</div>
+      <h2>The Portrait Studio</h2>
+      <p>Soon, every patron may sit for a Jotchua of their own.</p>
+    </div>
+
+    <div class="studio-stage reveal">
+      <div class="veil-frame">
+        <div class="veil-canvas">
+          <img src="images/jotchua-chef.jpg" alt="A work in preparation, kept in shadow until its unveiling" loading="lazy" />
+          <div class="stamp">
+            <div class="s1">OPENING SOON</div>
+            <div class="s2">PFP Generator · MMXXVI</div>
+          </div>
+        </div>
+        <div class="nameplate">THE PORTRAIT STUDIO · COMMISSION YOUR OWN</div>
+      </div>
+
+      <div class="rope-row" aria-hidden="true">
+        <svg viewBox="0 0 800 96" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="post" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#7c5e26"/><stop offset=".4" stop-color="#e7cd86"/><stop offset=".6" stop-color="#c9a24b"/><stop offset="1" stop-color="#7c5e26"/>
+            </linearGradient>
+            <linearGradient id="ropeg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#8d3a32"/><stop offset=".5" stop-color="#5a2420"/><stop offset="1" stop-color="#3f1714"/>
+            </linearGradient>
+          </defs>
+          <!-- rope -->
+          <path d="M40,30 Q400,98 760,30" fill="none" stroke="url(#ropeg)" stroke-width="11" stroke-linecap="round"/>
+          <path d="M40,27 Q400,94 760,27" fill="none" stroke="rgba(231,170,150,.35)" stroke-width="3" stroke-linecap="round"/>
+          <!-- stanchions -->
+          <rect x="33" y="22" width="14" height="66" rx="3" fill="url(#post)"/>
+          <circle cx="40" cy="16" r="11" fill="url(#post)"/>
+          <rect x="20" y="86" width="40" height="8" rx="4" fill="url(#post)"/>
+          <rect x="753" y="22" width="14" height="66" rx="3" fill="url(#post)"/>
+          <circle cx="760" cy="16" r="11" fill="url(#post)"/>
+          <rect x="740" y="86" width="40" height="8" rx="4" fill="url(#post)"/>
+        </svg>
+      </div>
+
+      <div class="studio-note">
+        <div class="lbl">Notice to Patrons</div>
+        <p>The studio is being hung. Within days, the easel opens — bring your likeness, leave with a portrait of the money dog. Followers of the Salon will witness the unveiling first.</p>
+      </div>
+
+      <div class="cta-row" style="animation:none;">
+        <a href="https://x.com/JotchuaTheMeme" target="_blank" rel="noopener" class="plaque">Await the Unveiling</a>
+        <a href="https://x.com/i/communities/2024722566188060994" target="_blank" rel="noopener" class="ghost">Wait Inside the Society</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <section id="acquire">
+    <div class="sec-head reveal">
+      <div class="ks">For the Collector</div>
+      <h2>Acquisition Guide</h2>
+      <p>Four steps to add the money dog to your holdings.</p>
+    </div>
+    <div class="acq reveal">
+      <div class="step"><div class="rn">I.</div><h3>A Wallet</h3><p>Commission a Solana wallet — <a href="https://phantom.app" target="_blank" rel="noopener">Phantom</a> or Solflare. The keys to the gallery.</p></div>
+      <div class="step"><div class="rn">II.</div><h3>The Funds</h3><p>Acquire SOL or USDC from any exchange and deposit into your wallet.</p></div>
+      <div class="step"><div class="rn">III.</div><h3>The Exchange</h3><p>Visit <a href="https://pump.fun/coin/BcHEaaTCvycPwwsJ9yQTXdHP9X2gCLkznDbZ8VySpump" target="_blank" rel="noopener">Pump.fun</a> or Jupiter, present the contract address, and swap.</p></div>
+      <div class="step"><div class="rn">IV.</div><h3>The Patron</h3><p>Hang the portrait. Set the pup as your likeness, follow <a href="https://x.com/JotchuaTheMeme" target="_blank" rel="noopener">the Salon</a>, join <a href="https://x.com/i/communities/2024722566188060994" target="_blank" rel="noopener">the Society</a>, and browse <a href="https://memedepot.com/d/jotchua" target="_blank" rel="noopener">the Print Room</a>.</p></div>
+    </div>
+  </section>
+
+  <footer>
+    <h2 class="serif">JOIN THE COLLECTORS</h2>
+    <p class="tag">"He has history."</p>
+    <div class="seals">
+      <a href="https://x.com/JotchuaTheMeme" target="_blank" rel="noopener">𝕏 · The Salon</a>
+      <a href="https://x.com/i/communities/2024722566188060994" target="_blank" rel="noopener">𝕏 · The Society</a>
+      <a href="https://memedepot.com/d/jotchua" target="_blank" rel="noopener">The Print Room</a>
+      <a href="https://dexscreener.com/solana/akqyqgeifbbhqmanukzrrurgokskkbv8nvdccc87frr8" target="_blank" rel="noopener">The Ledger</a>
+      <a href="https://pump.fun/coin/BcHEaaTCvycPwwsJ9yQTXdHP9X2gCLkznDbZ8VySpump" target="_blank" rel="noopener">Acquire</a>
+    </div>
+    <p class="disc">$JOTCHUA is a meme coin created for cultural and entertainment purposes, with no intrinsic value or promise of financial return. Conduct your own research. Never invest more than you can afford to lose.</p>
+  </footer>
+
+  <!-- cursor chaser -->
+  <div id="pup" aria-hidden="true"><img src="images/jotchua-cursor.jpg" alt="" /></div>
+
+  <!-- lightbox -->
+  <div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Artwork viewer">
+    <button class="lb-close" id="lb-close">Close ✕</button>
+    <div class="lb-frame"><img id="lb-img" src="" alt="" /></div>
+    <div class="lb-placard"><div class="t" id="lb-t"></div><div class="m" id="lb-m"></div></div>
+  </div>
+
+<script>
+  function copyCA(el){
+    navigator.clipboard.writeText('BcHEaaTCvycPwwsJ9yQTXdHP9X2gCLkznDbZ8VySpump').then(function(){
+      var t='Copy';el.textContent='Copied ✓';
+      setTimeout(function(){el.textContent=t;},1300);
+    });
+  }
+
+  /* scroll reveal — lights up each piece as it enters the room */
+  (function(){
+    var els=document.querySelectorAll('.reveal');
+    if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('lit');});return;}
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){en.target.classList.add('lit');io.unobserve(en.target);}
+      });
+    },{threshold:.12});
+    els.forEach(function(e){io.observe(e);});
+  })();
+
+  /* the pup chases the cursor like a ball */
+  (function(){
+    var pup=document.getElementById('pup');
+    if(!pup || !window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    var tx=innerWidth/2, ty=innerHeight/2,  /* the ball (cursor) */
+        x=tx, y=ty, started=false, wig=0;
+
+    document.addEventListener('mousemove',function(e){
+      tx=e.clientX; ty=e.clientY;
+      if(!started){x=tx; y=ty; started=true;}
+    });
+
+    function run(){
+      /* chase: always a step behind, sprinting harder the farther the ball */
+      var dx=tx-x, dy=ty-y, dist=Math.hypot(dx,dy);
+      x+=dx*0.085; y+=dy*0.085;
+
+      /* lean into the run, wiggle with excitement when he catches it */
+      var lean=Math.max(-18,Math.min(18,dx*0.12)), rot;
+      if(dist<6){wig+=0.25; rot=Math.sin(wig)*7;}
+      else{wig=0; rot=lean;}
+
+      /* trail just below-right of the pointer so he never blocks the click */
+      pup.style.transform='translate('+(x+14)+'px,'+(y+16)+'px) rotate('+rot+'deg)';
+      requestAnimationFrame(run);
+    }
+    run();
+  })();
+
+  (function(){
+    var lb=document.getElementById('lb'),
+        lbImg=document.getElementById('lb-img'),
+        lbT=document.getElementById('lb-t'),
+        lbM=document.getElementById('lb-m'),
+        closeBtn=document.getElementById('lb-close'),
+        lastFocus=null;
+
+    function open(fig){
+      var img=fig.querySelector('.gf img'),
+          placard=fig.querySelector('.placard');
+      lbImg.src=img.src;
+      lbImg.alt=img.alt;
+      lbT.textContent=placard?placard.querySelector('.t').textContent:'';
+      lbM.textContent=placard?placard.querySelector('.m').textContent:'';
+      lastFocus=document.activeElement;
+      lb.classList.add('open');
+      document.body.style.overflow='hidden';
+      closeBtn.focus();
+    }
+    function close(){
+      lb.classList.remove('open');
+      document.body.style.overflow='';
+      if(lastFocus)lastFocus.focus();
+    }
+
+    document.querySelectorAll('[data-lb]').forEach(function(gf){
+      gf.addEventListener('click',function(){open(gf.closest('.art'));});
+      gf.addEventListener('keydown',function(e){
+        if(e.key==='Enter'||e.key===' '){e.preventDefault();open(gf.closest('.art'));}
+      });
+    });
+    closeBtn.addEventListener('click',close);
+    lb.addEventListener('click',function(e){if(e.target===lb)close();});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&lb.classList.contains('open'))close();});
+  })();
+</script>
+</body>
+</html>
