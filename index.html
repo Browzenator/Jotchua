@@ -6,8 +6,12 @@
 <title>The Jotchua Collection — Perro Dinero · $JOTCHUA on Solana</title>
 <meta name="description" content="The permanent exhibition of Jotchua, the Perro Dinero — the money dog. Eight studies of a single subject, immortalised on the Solana ledger. $JOTCHUA." />
 <meta name="theme-color" content="#241b15" />
-<link rel="icon" type="image/jpeg" href="jotchua-chef.jpg" />
-<link rel="apple-touch-icon" href="jotchua-chef.jpg" />
+<link rel="icon" href="favicon.ico" sizes="any" />
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="icons/favicon-192.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="icons/favicon-180.png" />
+<link rel="manifest" href="site.webmanifest" />
 
 <!-- Open Graph / Twitter cards -->
 <meta property="og:type" content="website" />
@@ -424,6 +428,34 @@
   .sit-alt a{border-bottom:1px solid rgba(90,36,32,.4);color:var(--oxblood);}
   @media(max-width:560px){.sit-row{flex-direction:column;}.sit-file span,.sit-handle{width:100%;min-width:0;}}
 
+  /* collection accordion */
+  .col-toggle{display:flex;justify-content:center;margin:8px 0 4px;}
+  .acc-plaque{
+    display:inline-flex;align-items:center;gap:16px;cursor:pointer;
+    font-family:'Cinzel',serif;color:var(--wall);
+    background:linear-gradient(180deg,var(--gold-lt),var(--gold));
+    padding:14px 26px;border-radius:3px;border:1px solid #f0dca0;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 4px 12px rgba(0,0,0,.45);
+    transition:filter .2s ease;
+  }
+  .acc-plaque:hover{filter:brightness(1.06);}
+  .acc-label{font-size:13.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;}
+  .acc-sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;opacity:.7;letter-spacing:.02em;text-transform:none;}
+  .acc-chev{font-size:14px;transition:transform .35s ease;}
+  .acc-plaque[aria-expanded="true"] .acc-chev{transform:rotate(180deg);}
+  .acc-plaque[aria-expanded="true"] .acc-label::before{content:"Hide ";}
+  /* panel collapses by animating max-height */
+  .col-panel{
+    max-height:0;overflow:hidden;opacity:0;
+    transition:max-height .55s ease, opacity .45s ease, margin .45s ease;
+    margin-top:0;
+  }
+  .col-panel.open{max-height:6000px;opacity:1;margin-top:40px;}
+  @media (prefers-reduced-motion: reduce){
+    .col-panel{transition:none;}
+    .acc-chev{transition:none;}
+  }
+
   /* acquisition */
   .acq{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(201,162,75,.3);border:1px solid rgba(201,162,75,.3);border-radius:4px;overflow:hidden;}
   .acq .step{background:var(--wall2);padding:30px 24px;}
@@ -461,7 +493,7 @@
     </a>
     <div class="nav-links">
       <a href="#provenance">Provenance</a>
-      <a href="#collection">Collection</a>
+      <a href="#collection">The Wing</a>
       <a href="#studio">Studio</a>
       <a href="#ledger">Ledger</a>
       <a href="#acquire">Acquire</a>
@@ -518,9 +550,9 @@
     </div>
     <div class="prov">
       <div class="text reveal">
-        <p class="drop">In January of 2021, a golden retriever puppy appeared in an adoption post on the Spanish-language internet — held gently in one hand, staring directly into the soul of all who scrolled past.</p>
+        <p class="drop">In May 2026, a golden retriever puppy appeared in an adoption post on the Spanish-language internet — held gently in one hand, staring directly into the soul of all who scrolled past.</p>
         <p>The image was cropped, captioned and canonised across Latin America, christened <em>"Perro Dinero"</em> — the money dog. To set him as one's portrait, the legend holds, is to summon wealth itself.</p>
-        <p>Four years on, the original creator has never left. The pup now resides, immortal, upon the Solana ledger.</p>
+        <p>Five years on, in May of 2026, the original creator has never left. The pup now resides, immortal, upon the Solana ledger.</p>
         <div class="aka"><span>Esquizo</span><span>Perro Dinero</span><span>The OG Dog Meme</span></div>
       </div>
       <div class="portrait reveal"><img src="jotchua-chef.jpg" alt="Portrait of Jotchua in chef's whites" loading="lazy" /></div>
@@ -531,60 +563,11 @@
 
   <section id="collection">
     <div class="sec-head reveal">
-      <div class="ks">Permanent Exhibition</div>
-      <h2>The Collection</h2>
-      <p>Eight studies of a single subject, in his many vocations.</p>
+      <div class="ks">The Living Gallery</div>
+      <h2>The Patrons' Wing</h2>
+      <p>The collection grows with its patrons. Every holder a sitter — submit your Jotchua, and the finest are framed and hung in the salon style for all to see.</p>
     </div>
 
-    <figure class="centerpiece reveal">
-      <div class="cgf"><img src="jotchua-monks.jpg" alt="The Conclave — hooded order of Jotchuas at vespers" loading="lazy" /></div>
-      <figcaption>
-        <div class="ct">The Conclave</div>
-        <div class="cm">Hooded order at vespers · the brethren in silent prayer</div>
-        <div class="cd">Tempera &amp; gold leaf · Solana · 2026 · Centerpiece of the collection</div>
-      </figcaption>
-    </figure>
-
-    <div class="col">
-      <figure class="art reveal">
-        <div class="gf" data-lb tabindex="0" role="button" aria-label="View The Banquet larger"><img src="jotchua-renaissance.jpg" alt="The Banquet — oil on canvas, the assembled pack" loading="lazy" /></div>
-        <figcaption class="placard"><div class="t">The Banquet</div><div class="m">Oil on canvas, the assembled pack</div><div class="y">Solana · 2026</div></figcaption>
-      </figure>
-      <figure class="art reveal">
-        <div class="gf" data-lb tabindex="0" role="button" aria-label="View Sons of the Bodega larger"><img src="jotchua-crew.jpg" alt="Sons of the Bodega — sepia group portrait" loading="lazy" /></div>
-        <figcaption class="placard"><div class="t">Sons of the Bodega</div><div class="m">Sepia group portrait, the corner assembled</div><div class="y">Solana · 2026</div></figcaption>
-      </figure>
-      <figure class="art reveal">
-        <div class="gf" data-lb tabindex="0" role="button" aria-label="View After the Victory larger"><img src="jotchua-press.jpg" alt="After the Victory — the champion addresses the press" loading="lazy" /></div>
-        <figcaption class="placard"><div class="t">After the Victory</div><div class="m">The champion addresses the press</div><div class="y">Solana · 2026</div></figcaption>
-      </figure>
-      <figure class="art reveal">
-        <div class="gf" data-lb tabindex="0" role="button" aria-label="View Nocturne larger"><img src="jotchua-batman.jpg" alt="Nocturne — the masked vigilante at dusk" loading="lazy" /></div>
-        <figcaption class="placard"><div class="t">Nocturne</div><div class="m">The masked vigilante at dusk</div><div class="y">Solana · 2026</div></figcaption>
-      </figure>
-      <figure class="art reveal">
-        <div class="gf" data-lb tabindex="0" role="button" aria-label="View Le Chef de la Maison larger"><img src="jotchua-chef.jpg" alt="Le Chef de la Maison — toque and kerchief, kitchen interior" loading="lazy" /></div>
-        <figcaption class="placard"><div class="t">Le Chef de la Maison</div><div class="m">Toque &amp; kerchief, kitchen interior</div><div class="y">Solana · 2026</div></figcaption>
-      </figure>
-      <figure class="art reveal">
-        <div class="gf" data-lb tabindex="0" role="button" aria-label="View Settling the Account larger"><img src="jotchua-pistols.jpg" alt="Settling the Account — a study in resolve, at dusk" loading="lazy" /></div>
-        <figcaption class="placard"><div class="t">Settling the Account</div><div class="m">A study in resolve, at dusk</div><div class="y">Solana · 2026</div></figcaption>
-      </figure>
-      <figure class="art reveal">
-        <div class="gf" data-lb tabindex="0" role="button" aria-label="View The Sandwich Artisan larger"><img src="jotchua-subway.jpg" alt="The Sandwich Artisan — uniform and cap, in repose" loading="lazy" /></div>
-        <figcaption class="placard"><div class="t">The Sandwich Artisan</div><div class="m">Uniform &amp; cap, in repose</div><div class="y">Solana · 2026</div></figcaption>
-      </figure>
-      <figure class="art reveal">
-        <div class="gf" data-lb tabindex="0" role="button" aria-label="View Study, the Toast larger"><div class="det-clip" style="aspect-ratio:1"><img src="jotchua-renaissance.jpg" alt="Study, the Toast — detail from the banquet" class="detail" loading="lazy" /></div></div>
-        <figcaption class="placard"><div class="t">Study, the Toast</div><div class="m">Detail from the banquet, gilt frame</div><div class="y">Solana · 2026</div></figcaption>
-      </figure>
-    </div>
-
-    <div class="wing-head reveal">
-      <div class="ks">East Wing</div>
-      <h3>The Patrons' Wing</h3>
-      <p>Portraits of the Society, hung in the salon style. Every holder, a sitter.</p>
-    </div>
     <div class="salon-wall reveal" id="salon-wall" aria-label="Community portrait wall"></div>
     <div class="sit-card reveal" id="sit-card">
       <div class="lbl">Sit for the Salon</div>
@@ -777,8 +760,8 @@
   /* the patrons' wing — self-serve submissions, curator approval */
   (function(){
     /* ==== CONFIG: paste your Supabase project values here ==== */
-    var SUPABASE_URL='https://slrrvtnbeyjwjeeubkjk.supabase.co';        /* e.g. https://abcd1234.supabase.co */
-    var SUPABASE_ANON_KEY='sb_publishable_36M_E8kk1JGd02bFfAwGgw_IyAbDceN';
+    var SUPABASE_URL='YOUR_SUPABASE_URL';        /* e.g. https://abcd1234.supabase.co */
+    var SUPABASE_ANON_KEY='YOUR_SUPABASE_ANON_KEY';
     /* ========================================================== */
 
     var wall=document.getElementById('salon-wall');
@@ -809,6 +792,7 @@
       mat.appendChild(img);
       var gilt=document.createElement('img');
       gilt.className='wf-gilt'; gilt.src='jotchua-frame-overlay.png'; gilt.alt=''; gilt.loading='lazy';
+      gilt.onerror=function(){gilt.style.display='none';};
       f.appendChild(mat); f.appendChild(gilt);
       function show(){
         document.getElementById('lb-img').src=src;
