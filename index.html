@@ -377,12 +377,14 @@
     gap:20px 16px;margin-top:36px;
   }
   .wf{
-    padding:7px;border-radius:2px;cursor:zoom-in;position:relative;
-    background:linear-gradient(135deg,#eed79a,#9c7a32 42%,#e7cd86 58%,#7c5e26);
+    position:relative;aspect-ratio:1;cursor:zoom-in;
     box-shadow:0 10px 22px rgba(0,0,0,.45);
     transition:transform .3s ease, box-shadow .3s ease;
   }
-  .wf img{width:100%;aspect-ratio:1;object-fit:cover;display:block;border:3px solid #2a2016;}
+  /* portrait sits in the template's window: 172/2000 = 8.6% inset */
+  .wf-mat{position:absolute;inset:8.6%;background:#14100b;overflow:hidden;}
+  .wf-mat img{width:100%;height:100%;object-fit:cover;display:block;}
+  .wf-gilt{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
   /* salon character — frames hang slightly imperfectly */
   .wf:nth-child(4n+1){transform:rotate(-1.1deg);}
   .wf:nth-child(4n+2){transform:rotate(.9deg);}
@@ -398,6 +400,29 @@
   }
   .wing-cta{display:flex;justify-content:center;margin-top:34px;}
   @media (prefers-reduced-motion: reduce){.wf{transition:none;}.wf:hover{transform:none;}}
+
+  /* sit for the salon — submission card */
+  .sit-card{
+    max-width:680px;margin:44px auto 0;text-align:center;
+    background:radial-gradient(ellipse at 30% 20%, #f7eed2, #e8d9b4 70%, #dcc99e 100%);
+    color:var(--ink);border-radius:5px;padding:24px 26px;border:1px solid #cbb888;
+    box-shadow:0 14px 34px rgba(0,0,0,.5);
+  }
+  .sit-card .lbl{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--oxblood);margin-bottom:8px;}
+  .sit-sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;margin-bottom:18px;}
+  .sit-row{display:flex;gap:12px;justify-content:center;align-items:stretch;flex-wrap:wrap;}
+  .sit-file{position:relative;display:inline-flex;align-items:center;cursor:pointer;}
+  .sit-file input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+  .sit-file span,.sit-handle{
+    font-family:'EB Garamond',serif;font-size:15px;color:var(--ink);
+    background:rgba(255,252,240,.7);border:1px solid #b5a274;border-radius:3px;
+    padding:11px 16px;min-width:200px;text-align:left;
+  }
+  .sit-handle::placeholder{color:rgba(42,32,22,.45);font-style:italic;}
+  .sit-msg{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;margin-top:14px;min-height:1.2em;color:var(--oxblood);}
+  .sit-alt{font-size:14px;opacity:.65;margin-top:12px;}
+  .sit-alt a{border-bottom:1px solid rgba(90,36,32,.4);color:var(--oxblood);}
+  @media(max-width:560px){.sit-row{flex-direction:column;}.sit-file span,.sit-handle{width:100%;min-width:0;}}
 
   /* acquisition */
   .acq{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(201,162,75,.3);border:1px solid rgba(201,162,75,.3);border-radius:4px;overflow:hidden;}
@@ -561,8 +586,19 @@
       <p>Portraits of the Society, hung in the salon style. Every holder, a sitter.</p>
     </div>
     <div class="salon-wall reveal" id="salon-wall" aria-label="Community portrait wall"></div>
-    <div class="wing-cta reveal">
-      <a href="https://x.com/i/communities/2024722566188060994" target="_blank" rel="noopener" class="ghost">Submit Your Portrait to the Society</a>
+    <div class="sit-card reveal" id="sit-card">
+      <div class="lbl">Sit for the Salon</div>
+      <p class="sit-sub">Submit your Jotchua portrait for the curator’s review. Approved works are hung in the wing.</p>
+      <div class="sit-row" id="sit-row">
+        <label class="sit-file">
+          <input type="file" id="sit-file" accept="image/*" />
+          <span id="sit-file-name">Choose your portrait…</span>
+        </label>
+        <input type="text" id="sit-handle" class="sit-handle" maxlength="40" placeholder="Your 𝕏 handle (@you) — links to your profile" />
+        <button id="sit-btn" class="plaque" type="button">Submit to the Curator</button>
+      </div>
+      <div id="sit-msg" class="sit-msg" role="status" aria-live="polite"></div>
+      <p class="sit-alt">Prefer 𝕏? Tag <a href="https://x.com/JotchuaTheMeme" target="_blank" rel="noopener">@JotchuaTheMeme</a> with your portrait.</p>
     </div>
   </section>
 
@@ -686,6 +722,7 @@
     <div class="lb-placard"><div class="t" id="lb-t"></div><div class="m" id="lb-m"></div></div>
   </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   function copyCA(el){
     navigator.clipboard.writeText('BcHEaaTCvycPwwsJ9yQTXdHP9X2gCLkznDbZ8VySpump').then(function(){
@@ -737,45 +774,130 @@
     run();
   })();
 
-  /* the patrons' wing — hang portraits listed in wall.json */
+  /* the patrons' wing — self-serve submissions, curator approval */
   (function(){
+    /* ==== CONFIG: paste your Supabase project values here ==== */
+    var SUPABASE_URL='YOUR_SUPABASE_URL';        /* e.g. https://abcd1234.supabase.co */
+    var SUPABASE_ANON_KEY='YOUR_SUPABASE_ANON_KEY';
+    /* ========================================================== */
+
     var wall=document.getElementById('salon-wall');
     if(!wall) return;
-    fetch('wall.json',{cache:'no-cache'})
-      .then(function(r){if(!r.ok)throw 0;return r.json();})
-      .then(function(list){
-        if(!Array.isArray(list)||list.length===0) throw 0;
-        list.forEach(function(p){
-          if(!p||!p.src) return;
-          var f=document.createElement('div');
-          f.className='wf';
-          f.setAttribute('role','button');
-          f.setAttribute('tabindex','0');
-          var handle=(p.handle||'A Patron of the Collection');
-          f.setAttribute('aria-label','View portrait of '+handle);
-          var img=document.createElement('img');
-          img.src=p.src; img.alt='Portrait of '+handle; img.loading='lazy';
-          f.appendChild(img);
-          function show(){
-            document.getElementById('lb-img').src=p.src;
-            document.getElementById('lb-img').alt='Portrait of '+handle;
-            document.getElementById('lb-t').textContent=handle;
-            document.getElementById('lb-m').textContent='From the Patrons\u2019 Wing';
-            document.getElementById('lb').classList.add('open');
-            document.body.style.overflow='hidden';
-            document.getElementById('lb-close').focus();
-          }
-          f.addEventListener('click',show);
-          f.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();show();}});
-          wall.appendChild(f);
+    var row=document.getElementById('sit-row'),
+        fileIn=document.getElementById('sit-file'),
+        fileName=document.getElementById('sit-file-name'),
+        handleIn=document.getElementById('sit-handle'),
+        btn=document.getElementById('sit-btn'),
+        msg=document.getElementById('sit-msg');
+
+    var configured = SUPABASE_URL.indexOf('supabase.co')>-1 && SUPABASE_ANON_KEY.length>30 && window.supabase;
+    var client = configured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+    function hang(src, handle){
+      var f=document.createElement('div');
+      f.className='wf'; f.setAttribute('role','button'); f.setAttribute('tabindex','0');
+      var who=(handle||'A Patron of the Collection');
+      /* a clean @handle becomes a link to their X profile */
+      var x=String(who).replace(/^@/,'').replace(/[^A-Za-z0-9_]/g,'').slice(0,15);
+      var isHandle = x.length>=2 && /^@/.test(String(who).trim());
+      var label = isHandle ? '@'+x : who;
+      f.setAttribute('aria-label','View portrait of '+label);
+      f.title=label;
+      var mat=document.createElement('div'); mat.className='wf-mat';
+      var img=document.createElement('img');
+      img.src=src; img.alt='Portrait of '+label; img.loading='lazy';
+      mat.appendChild(img);
+      var gilt=document.createElement('img');
+      gilt.className='wf-gilt'; gilt.src='jotchua-frame-overlay.png'; gilt.alt=''; gilt.loading='lazy';
+      f.appendChild(mat); f.appendChild(gilt);
+      function show(){
+        document.getElementById('lb-img').src=src;
+        document.getElementById('lb-img').alt='Portrait of '+label;
+        document.getElementById('lb-t').textContent=label;
+        var m=document.getElementById('lb-m');
+        m.textContent='';
+        if(isHandle){
+          var a=document.createElement('a');
+          a.href='https://x.com/'+x; a.target='_blank'; a.rel='noopener';
+          a.textContent='View '+label+' on \ud835\udd4f';
+          a.style.color='inherit'; a.style.borderBottom='1px solid rgba(90,36,32,.4)';
+          m.appendChild(a);
+        }else{
+          m.textContent='From the Patrons\u2019 Wing';
+        }
+        document.getElementById('lb').classList.add('open');
+        document.body.style.overflow='hidden';
+        document.getElementById('lb-close').focus();
+      }
+      f.addEventListener('click',show);
+      f.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();show();}});
+      wall.appendChild(f);
+    }
+    function emptyNote(){
+      var n=document.createElement('div');
+      n.className='wall-empty';
+      n.textContent='The east wing awaits its first hanging. Submit your Jotchua portrait below \u2014 the finest will be framed here.';
+      wall.parentNode.insertBefore(n,wall.nextSibling);
+    }
+
+    /* load the wall */
+    if(client){
+      client.from('wall_submissions')
+        .select('handle,image_path')
+        .eq('approved',true)
+        .order('created_at',{ascending:false})
+        .limit(120)
+        .then(function(res){
+          if(res.error||!res.data||res.data.length===0){emptyNote();return;}
+          res.data.forEach(function(r){
+            var url=client.storage.from('wall').getPublicUrl(r.image_path).data.publicUrl;
+            hang(url,r.handle);
+          });
         });
-      })
-      .catch(function(){
-        var n=document.createElement('div');
-        n.className='wall-empty';
-        n.textContent='The east wing awaits its first hanging. Post your Jotchua portrait in the Society \u2014 the finest will be framed here.';
-        wall.parentNode.insertBefore(n,wall.nextSibling);
-      });
+    }else{
+      fetch('wall.json',{cache:'no-cache'})
+        .then(function(r){if(!r.ok)throw 0;return r.json();})
+        .then(function(list){
+          if(!Array.isArray(list)||list.length===0) throw 0;
+          list.forEach(function(p){if(p&&p.src)hang(p.src,p.handle);});
+        })
+        .catch(emptyNote);
+    }
+
+    /* submission form */
+    if(!row) return;
+    if(!client){
+      row.style.display='none';
+      msg.textContent='The submission desk opens shortly \u2014 for now, tag @JotchuaTheMeme on \ud835\udd4f.';
+      return;
+    }
+    fileIn.addEventListener('change',function(){
+      fileName.textContent=fileIn.files[0]?fileIn.files[0].name:'Choose your portrait\u2026';
+    });
+    btn.addEventListener('click',function(){
+      var f=fileIn.files[0];
+      if(!f){msg.textContent='Choose an image first \u2014 the frame cannot hang empty.';return;}
+      if(f.type.indexOf('image/')!==0){msg.textContent='Only images may be hung in the wing.';return;}
+      if(f.size>4*1024*1024){msg.textContent='Canvas too large \u2014 keep it under 4 MB.';return;}
+      var ext=(f.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,5)||'jpg';
+      var path=(window.crypto&&crypto.randomUUID?crypto.randomUUID():'p'+Date.now()+Math.random().toString(36).slice(2,8))+'.'+ext;
+      var who=(handleIn.value||'A Patron').trim().slice(0,40);
+      btn.disabled=true; msg.textContent='Carrying your canvas to the curator\u2026';
+      client.storage.from('wall').upload(path,f,{contentType:f.type})
+        .then(function(up){
+          if(up.error)throw up.error;
+          return client.from('wall_submissions').insert({handle:who,image_path:path});
+        })
+        .then(function(ins){
+          if(ins.error)throw ins.error;
+          msg.textContent='Received. Once the curator approves, your portrait joins the wall.';
+          fileIn.value=''; fileName.textContent='Choose your portrait\u2026'; handleIn.value='';
+        })
+        .catch(function(){
+          msg.textContent='The studio could not accept the canvas \u2014 try again shortly.';
+        })
+        .finally(function(){btn.disabled=false;});
+    });
   })();
 
   (function(){
