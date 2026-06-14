@@ -1034,6 +1034,10 @@ function toLocal(o,px,py){const dx=px-o.x,dy=py-o.y,c=Math.cos(-o.rot),si=Math.s
   let x=dx*c-dy*si,y=dx*si+dy*c;x=x/sxv*(o.flip?-1:1);y=y/syv*(o.flipY?-1:1);return {x,y};}
 function handlePts(o){const c=corners(o);return {rot:c[2],del:c[1]};}
 function edgePts(o){const c=corners(o);return {r:mid(c[1],c[2]),l:mid(c[3],c[0]),t:mid(c[0],c[1]),b:mid(c[2],c[3])};}
+/* keep a control knob inside the canvas so it stays drawable & tappable even when the piece runs off an edge */
+function clampHandle(pt){const m=Math.max(15,CW*0.032);return {x:Math.max(m,Math.min(CW-m,pt.x)),y:Math.max(m,Math.min(CH-m,pt.y))};}
+/* keep a piece's anchor on-canvas so it can always be grabbed and pulled back */
+function clampCenter(o){const m=Math.max(8,CW*0.02);o.x=Math.max(m,Math.min(CW-m,o.x));o.y=Math.max(m,Math.min(CH-m,o.y));}
 function drawHandles(){ux.clearRect(0,0,CW,CH);
   if(eraseMode&&cursor){const br=brush*CW;ux.save();
     ux.beginPath();ux.arc(cursor.x,cursor.y,br,0,7);
@@ -1046,19 +1050,22 @@ function drawHandles(){ux.clearRect(0,0,CW,CH);
   ux.strokeStyle='rgba(201,162,75,.95)';ux.lineWidth=Math.max(2,CW*0.004);ux.setLineDash([CW*0.018,CW*0.012]);
   ux.beginPath();ux.moveTo(c[0].x,c[0].y);for(let i=1;i<4;i++)ux.lineTo(c[i].x,c[i].y);ux.closePath();ux.stroke();ux.setLineDash([]);
   if(!eraseMode){const ed=edgePts(o),es=Math.max(8,CW*0.014);
-    sqr(ed.r.x,ed.r.y,es);sqr(ed.l.x,ed.l.y,es);sqr(ed.t.x,ed.t.y,es);sqr(ed.b.x,ed.b.y,es);
-    knob(h.rot.x,h.rot.y,r,'#c9a24b','#2a2107','↻');knob(h.del.x,h.del.y,r,'#8b2f2b','#fff','✕');}ux.restore();
+    const eR=clampHandle(ed.r),eL=clampHandle(ed.l),eT=clampHandle(ed.t),eB=clampHandle(ed.b);
+    sqr(eR.x,eR.y,es);sqr(eL.x,eL.y,es);sqr(eT.x,eT.y,es);sqr(eB.x,eB.y,es);
+    const kR=clampHandle(h.rot),kD=clampHandle(h.del);
+    knob(kR.x,kR.y,r,'#c9a24b','#2a2107','↻');knob(kD.x,kD.y,r,'#8b2f2b','#fff','✕');}ux.restore();
   function sqr(x,y,s){ux.save();ux.translate(x,y);ux.rotate(o.rot);ux.beginPath();ux.rect(-s,-s,2*s,2*s);
     ux.fillStyle='#e7cd86';ux.fill();ux.lineWidth=Math.max(1.5,CW*0.003);ux.strokeStyle='rgba(42,33,7,.85)';ux.stroke();ux.restore();}
   function knob(x,y,r,fill,fg,g){ux.beginPath();ux.arc(x,y,r,0,7);ux.fillStyle=fill;ux.fill();
     ux.lineWidth=Math.max(2,CW*0.003);ux.strokeStyle='rgba(255,255,255,.7)';ux.stroke();
     ux.fillStyle=fg;ux.font=`${Math.round(r*1.15)}px sans-serif`;ux.textAlign='center';ux.textBaseline='middle';ux.fillText(g,x,y);}}
-function hitHandle(o,px,py){const h=handlePts(o),r=Math.max(20,CW*0.04);
-  if(Math.hypot(px-h.del.x,py-h.del.y)<r)return 'del';
-  if(Math.hypot(px-h.rot.x,py-h.rot.y)<r)return 'rot';
-  const e=edgePts(o),er=Math.max(16,CW*0.03);
-  if(Math.hypot(px-e.r.x,py-e.r.y)<er||Math.hypot(px-e.l.x,py-e.l.y)<er)return 'sx';
-  if(Math.hypot(px-e.t.x,py-e.t.y)<er||Math.hypot(px-e.b.x,py-e.b.y)<er)return 'sy';
+function hitHandle(o,px,py){const h=handlePts(o),e=edgePts(o),r=Math.max(20,CW*0.04),er=Math.max(16,CW*0.03);
+  const hd=clampHandle(h.del),hr=clampHandle(h.rot);
+  if(Math.hypot(px-hd.x,py-hd.y)<r)return 'del';
+  if(Math.hypot(px-hr.x,py-hr.y)<r)return 'rot';
+  const cR=clampHandle(e.r),cL=clampHandle(e.l),cT=clampHandle(e.t),cB=clampHandle(e.b);
+  if(Math.hypot(px-cR.x,py-cR.y)<er||Math.hypot(px-cL.x,py-cL.y)<er)return 'sx';
+  if(Math.hypot(px-cT.x,py-cT.y)<er||Math.hypot(px-cB.x,py-cB.y)<er)return 'sy';
   return null;}
 function pick(px,py){const l=objects.slice().sort(zsort);
   for(let i=l.length-1;i>=0;i--){const o=l[i],lo=toLocal(o,px,py);
@@ -1069,9 +1076,12 @@ function evtPt(e){const r=scene.getBoundingClientRect();
 function eraseAt(p){const o=selected;if(!o)return;
   const lo=toLocal(o,p.x,p.y), sxr=o.cw/o.baseW, syr=o.ch/o.baseH;
   const cx=(lo.x+o.baseW/2)*sxr, cy=(lo.y+o.baseH/2)*syr;
-  const rad=Math.max(2,(brush*CW)/o.scale*sxr);
+  /* brush is a round screen circle of radius R; the piece may be scaled/stretched, so erase the
+     matching ellipse in canvas space (per-axis) — its rendered footprint is then exactly the ring */
+  const R=brush*CW, ex=o.scale*(o.sx==null?1:o.sx), ey=o.scale*(o.sy==null?1:o.sy);
+  const radX=Math.max(1,R/ex*sxr), radY=Math.max(1,R/ey*syr);
   const c=o.canvas.getContext('2d');c.save();
-  c.beginPath();c.arc(cx,cy,rad,0,7);
+  c.beginPath();c.ellipse(cx,cy,radX,radY,0,0,7);
   if(eraseKind==='restore'&&o.base){c.clip();c.drawImage(o.base,0,0,o.cw,o.ch);}
   else{c.globalCompositeOperation='destination-out';c.fill();}
   c.restore();render();}
@@ -1143,20 +1153,22 @@ ui.addEventListener('pointerdown',e=>{ui.setPointerCapture(e.pointerId);const p=
     g={d:dist(pts[0],pts[1]),a:ang(pts[0],pts[1]),s:selected.scale,r:selected.rot,mid:mid(pts[0],pts[1]),ox:selected.x,oy:selected.y};mode='gesture';return;}
   if(selected){const h=hitHandle(selected,p.x,p.y);if(h==='del'){mode='maybedel';return;}
     if(h==='rot'){markGesture();mode='rotscale';g={d:dist({x:selected.x,y:selected.y},p),a:Math.atan2(p.y-selected.y,p.x-selected.x),s:selected.scale,r:selected.rot};return;}
-    if(h==='sx'||h==='sy'){markGesture();mode=(h==='sx')?'stretchX':'stretchY';return;}}
+    if(h==='sx'||h==='sy'){markGesture();const ddx=p.x-selected.x,ddy=p.y-selected.y,cc=Math.cos(-selected.rot),snr=Math.sin(-selected.rot);
+      g={sx0:selected.sx==null?1:selected.sx,sy0:selected.sy==null?1:selected.sy,rx0:ddx*cc-ddy*snr,ry0:ddx*snr+ddy*cc};
+      mode=(h==='sx')?'stretchX':'stretchY';return;}}
   const o=pick(p.x,p.y);if(o){select(o);markGesture();mode='drag';g={dx:p.x-o.x,dy:p.y-o.y};}else{selected=null;setErase(false);updateSel();render();}});
 ui.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;const p=evtPt(e);pointers.set(e.pointerId,p);
   if(mode==='erase'&&selected){cursor=p;eraseAt(p);return;}
   if(mode==='gesture'&&selected){const pts=[...pointers.values()];const nd=dist(pts[0],pts[1]),na=ang(pts[0],pts[1]),nm=mid(pts[0],pts[1]);
-    selected.scale=Math.max(0.05,g.s*(nd/g.d));selected.rot=g.r+(na-g.a);selected.x=g.ox+(nm.x-g.mid.x);selected.y=g.oy+(nm.y-g.mid.y);render();
-  }else if(mode==='drag'&&selected){selected.x=p.x-g.dx;selected.y=p.y-g.dy;render();
+    selected.scale=Math.max(0.05,g.s*(nd/g.d));selected.rot=g.r+(na-g.a);selected.x=g.ox+(nm.x-g.mid.x);selected.y=g.oy+(nm.y-g.mid.y);clampCenter(selected);render();
+  }else if(mode==='drag'&&selected){selected.x=p.x-g.dx;selected.y=p.y-g.dy;clampCenter(selected);render();
   }else if(mode==='rotscale'&&selected){const nd=dist({x:selected.x,y:selected.y},p);const na=Math.atan2(p.y-selected.y,p.x-selected.x);
     selected.scale=Math.max(0.05,g.s*(nd/g.d));selected.rot=g.r+(na-g.a);render();
   }else if((mode==='stretchX'||mode==='stretchY')&&selected){const o=selected;
     const dx=p.x-o.x,dy=p.y-o.y,c=Math.cos(-o.rot),si=Math.sin(-o.rot);
     const rx=dx*c-dy*si, ry=dx*si+dy*c;
-    if(mode==='stretchX'){const half=(o.baseW/2)*o.scale;if(half>0)o.sx=Math.max(0.05,Math.abs(rx)/half);}
-    else{const half=(o.baseH/2)*o.scale;if(half>0)o.sy=Math.max(0.05,Math.abs(ry)/half);}
+    if(mode==='stretchX'){const dn=Math.abs(g.rx0)||1;o.sx=Math.max(0.05,g.sx0*Math.abs(rx)/dn);}
+    else{const dn=Math.abs(g.ry0)||1;o.sy=Math.max(0.05,g.sy0*Math.abs(ry)/dn);}
     render();}});
 function endP(e){const p=pointers.get(e.pointerId);
   if(mode==='maybedel'&&selected&&p&&hitHandle(selected,p.x,p.y)==='del')removeSelected();
