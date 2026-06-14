@@ -362,6 +362,11 @@
     background:none;border:0;padding:0;margin:0;flex:1;min-width:0;outline:none;
   }
   .sit-handle::placeholder{color:rgba(42,32,22,.45);font-style:italic;}
+  .sit-handle.verified{font-weight:600;color:#2f6b34;}
+  .sit-signout{display:block;margin:10px auto 0;background:none;border:0;cursor:pointer;
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:var(--oxblood);
+    opacity:.7;text-decoration:underline;}
+  .sit-signout:hover{opacity:1;}
   .sit-msg{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;margin-top:14px;min-height:1.2em;color:var(--oxblood);}
   .sit-alt{font-size:14px;opacity:.65;margin-top:12px;}
   .sit-alt a{border-bottom:1px solid rgba(90,36,32,.4);color:var(--oxblood);}
@@ -460,6 +465,11 @@
   .pfp .erasebar{display:none;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;}.pfp .erasebar.on{display:flex;}
   .pfp .opacrow{display:none;align-items:center;gap:6px;margin-top:10px;}.pfp .opacrow.on{display:flex;}
   .pfp .opacrow input[type=range]{flex:1;min-width:120px;accent-color:var(--pf-gold);cursor:pointer;}
+  .pfp .ai-input{width:100%;box-sizing:border-box;font-family:var(--pf-sans);font-size:13px;color:var(--pf-cream);
+    background:rgba(0,0,0,.28);border:1px solid var(--pf-line);border-radius:8px;padding:10px 12px;outline:none;}
+  .pfp .ai-input:focus{border-color:var(--pf-gold);box-shadow:0 0 0 2px rgba(201,162,75,.3);}
+  .pfp .ai-input::placeholder{color:var(--pf-soft);}
+  .pfp #ai-go[disabled]{opacity:.6;cursor:default;}
   .pfp .muted{font-family:var(--pf-sans);font-size:11px;color:var(--pf-soft);margin-top:9px;line-height:1.6;}
   .pfp .toggle{display:flex;align-items:center;gap:9px;font-family:var(--pf-sans);font-size:12px;color:var(--pf-cream);cursor:pointer;margin-top:4px;}
   .pfp .toggle input{accent-color:var(--pf-gold);width:16px;height:16px;}
@@ -607,6 +617,14 @@
               <button class="btn" id="redo" disabled>↷ Redo</button>
             </div>
             <button class="btn wide" id="strip" style="margin-top:10px">⟲ Clear all</button>
+          </div>
+
+          <div class="group">
+            <div class="label">Generate with AI</div>
+            <input type="text" id="ai-prompt" class="ai-input" maxlength="200" autocomplete="off"
+              placeholder="e.g. astronaut suit, neon city behind him">
+            <button class="btn gold wide" id="ai-go" style="margin-top:8px">✨ Generate Jotchua</button>
+            <div class="muted" id="ai-status">Describe an outfit, accessory, or scene. The Jotchua stays the same — your prompt just restyles him. He drops in as a cutout you can move, size &amp; combine with the pieces above.</div>
           </div>
 
           <div class="group">
@@ -880,20 +898,64 @@
     fileIn.addEventListener('change',function(){
       fileName.textContent=fileIn.files[0]?fileIn.files[0].name:'Choose your portrait\u2026';
     });
-    /* the @ is a fixed prefix in the UI \u2014 keep the field to a clean X username */
-    handleIn.addEventListener('input',function(){
-      var v=handleIn.value.replace(/^@+/,'').replace(/[^A-Za-z0-9_]/g,'').slice(0,15);
-      if(v!==handleIn.value)handleIn.value=v;
+    /* X verification: the @ is no longer typed \u2014 it comes from a real X sign-in */
+    var authUser=null;
+    handleIn.readOnly=true;
+    handleIn.placeholder='Sign in with X to verify your @';
+
+    function xHandle(u){
+      if(!u) return '';
+      var m=u.user_metadata||{};
+      var n=m.user_name||m.preferred_username||m.screen_name||m.name||'';
+      return String(n).replace(/[^A-Za-z0-9_]/g,'').slice(0,15);
+    }
+
+    var signout=document.createElement('button');
+    signout.type='button'; signout.className='sit-signout'; signout.textContent='Not you? Sign out';
+    signout.style.display='none';
+    signout.addEventListener('click',function(){
+      client.auth.signOut().then(function(){authUser=null;applyAuth();msg.textContent='Signed out.';});
     });
+    if(msg&&msg.parentNode) msg.parentNode.insertBefore(signout,msg);
+
+    function applyAuth(){
+      if(authUser){
+        var h=xHandle(authUser);
+        handleIn.value='@'+h;
+        handleIn.classList.add('verified');
+        btn.textContent='Submit for approval';
+        signout.style.display='';
+        if(!/Carrying|Received|could not|Signed out/.test(msg.textContent||''))
+          msg.textContent='Signed in as @'+h+' \u2014 choose your portrait and submit.';
+      }else{
+        handleIn.value='';
+        handleIn.classList.remove('verified');
+        btn.textContent='Sign in with \ud835\udd4f to post';
+        signout.style.display='none';
+      }
+    }
+
+    client.auth.getSession().then(function(res){
+      authUser=(res&&res.data&&res.data.session)?res.data.session.user:null; applyAuth();
+    });
+    client.auth.onAuthStateChange(function(_e,session){
+      authUser=session?session.user:null; applyAuth();
+    });
+
     btn.addEventListener('click',function(){
+      if(!authUser){
+        btn.disabled=true; msg.textContent='Opening X sign-in\u2026';
+        client.auth.signInWithOAuth({provider:'twitter',options:{redirectTo:location.href.split('#')[0].split('?')[0]}})
+          .then(function(res){ if(res&&res.error){msg.textContent='Could not start X sign-in: '+res.error.message; btn.disabled=false;} });
+        return;
+      }
       var f=fileIn.files[0];
       if(!f){msg.textContent='Choose an image first \u2014 the frame cannot hang empty.';return;}
       if(f.type.indexOf('image/')!==0){msg.textContent='Only images may be hung in the wing.';return;}
       if(f.size>4*1024*1024){msg.textContent='Canvas too large \u2014 keep it under 4 MB.';return;}
       var ext=(f.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,5)||'jpg';
       var path=(window.crypto&&crypto.randomUUID?crypto.randomUUID():'p'+Date.now()+Math.random().toString(36).slice(2,8))+'.'+ext;
-      var uname=(handleIn.value||'').replace(/^@+/,'').replace(/[^A-Za-z0-9_]/g,'').slice(0,15);
-      var who=uname?('@'+uname):'A Jotchuan';
+      var who='@'+xHandle(authUser);
       btn.disabled=true; msg.textContent='Carrying your canvas to the curator\u2026';
       client.storage.from('wall').upload(path,f,{contentType:f.type})
         .then(function(up){
@@ -903,7 +965,7 @@
         .then(function(ins){
           if(ins.error)throw ins.error;
           msg.textContent='Received. Once the curator approves, your portrait joins the wall.';
-          fileIn.value=''; fileName.textContent='Choose your portrait\u2026'; handleIn.value='';
+          fileIn.value=''; fileName.textContent='Choose your portrait\u2026';
         })
         .catch(function(){
           msg.textContent='The studio could not accept the canvas \u2014 try again shortly.';
@@ -958,6 +1020,7 @@ const SLOT_DEF = {
   shirt:  {ax:0.55, ay:0.90,  sw:0.62, z:2},
   eyewear:{ax:0.56, ay:0.49,  sw:0.46, z:5},
   item:   {ax:0.58, ay:0.60,  sw:0.30, z:4},
+  char:   {ax:0.50, ay:0.50,  sw:0.82, z:3},
 };
 const CATS = [["hat","Hat"],["shirt","Shirt"],["eyewear","Eyewear"],["item","Item"]];
 </script>
@@ -1135,6 +1198,24 @@ function addUpload(slot,files){setErase(false);pushHistory();
     r.readAsDataURL(f);});
 }
 function select(o){selected=o;updateSel();render();}
+
+/* drop an AI-generated character (data URL) in as a clean, centered cutout layer */
+function addGenerated(dataURL){
+  setErase(false);setWand(false);pushHistory();
+  const img=new Image();
+  img.onload=()=>{
+    let w=img.naturalWidth,h=img.naturalHeight;const MX=1400;
+    if(Math.max(w,h)>MX){const s=MX/Math.max(w,h);w=Math.round(w*s);h=Math.round(h*s);}
+    const o={id:uid++,slot:'char',img,canvas:makeCanvas(img,w,h),cw:w,ch:h,baseW:w,baseH:h,
+      z:nextZ(),x:0,y:0,rot:0,flip:false,flipY:false,scale:1,sx:1,sy:1,opacity:1};
+    removeBg(o.canvas,bgThresh);              // generated characters always come in cut out
+    o.base=cloneCanvas(o.canvas);
+    applyDefault(o);objects.push(o);select(o);render();
+    if(window.__aiDone)window.__aiDone(true);
+  };
+  img.onerror=()=>{if(window.__aiDone)window.__aiDone(false,'Could not load the generated image.');};
+  img.src=dataURL;
+}
 function updateSel(){const bar=document.getElementById('selbar'),note=document.getElementById('selnote'),
   opr=document.getElementById('opacrow'),op=document.getElementById('opac');
   if(selected){bar.classList.add('on');note.style.display='none';
@@ -1208,6 +1289,40 @@ if(wandBtn)wandBtn.onclick=()=>setWand(!wandMode);
   sm.onclick=()=>{if(selected){pushHistory();featherEdges(selected);selected.base=cloneCanvas(selected.canvas);render();}};})();
 (function(){const sl=document.getElementById('sens');if(!sl)return;
   sl.addEventListener('input',()=>{bgThresh=parseFloat(sl.value);});})();
+
+/* ---------- AI generation (calls the Vercel /api/generate function) ---------- */
+(function(){
+  const ENDPOINT='/api/generate';
+  const promptEl=document.getElementById('ai-prompt');
+  const goEl=document.getElementById('ai-go');
+  const statusEl=document.getElementById('ai-status');
+  if(!goEl)return;
+  let busy=false; const goText=goEl.textContent;
+  function status(m){if(statusEl)statusEl.textContent=m;}
+  function finish(){busy=false;goEl.disabled=false;goEl.textContent=goText;}
+  // addGenerated calls this back once the returned image has loaded (or failed)
+  window.__aiDone=function(ok,msg){if(ok)status('Done — move, size & combine with the pieces above.');else status(msg||'That image could not be loaded.');finish();};
+  async function generate(){
+    if(busy)return;
+    const prompt=(promptEl.value||'').trim();
+    if(prompt.length<2){status('Type a short description first.');return;}
+    busy=true;goEl.disabled=true;goEl.textContent='Generating…';
+    status('Generating your Jotchua… this can take 10-30 seconds.');
+    try{
+      const res=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+      if(!res.ok){
+        let m=(res.status===429)?'Too many requests — give it a minute.':'Generation failed.';
+        try{const e=await res.json();if(e&&e.error)m=e.error;}catch(_){}
+        status(m);finish();return;
+      }
+      const data=await res.json().catch(()=>null);
+      if(!data||!data.image){status('No image came back. Try a different prompt.');finish();return;}
+      addGenerated(data.image);   // finish() runs from window.__aiDone after the image loads
+    }catch(_){status('Network error reaching the generator.');finish();}
+  }
+  goEl.addEventListener('click',generate);
+  promptEl.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();generate();}});
+})();
 document.getElementById('dup').onclick=()=>{if(!selected)return;pushHistory();const s=selected;
   const o=Object.assign({},s);o.id=uid++;o.canvas=makeCanvas(s.canvas,s.cw,s.ch);
   o.x+=CW*0.05;o.y+=CH*0.05;o.z=nextZ();objects.push(o);setErase(false);select(o);render();};
