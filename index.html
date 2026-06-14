@@ -631,11 +631,9 @@
             <div class="erasebar" id="erasebar">
               <button class="btn kbtn act" data-kind="erase">Rub out</button>
               <button class="btn kbtn" data-kind="restore">Restore</button>
-              <span class="muted" style="margin:0 2px 0 6px">Brush</span>
-              <button class="btn ebtn" data-br="0.035">S</button>
-              <button class="btn ebtn act" data-br="0.07">M</button>
-              <button class="btn ebtn" data-br="0.12">L</button>
-              <span class="muted" style="margin:0 0 0 4px">Drag to rub out or paint back. Tap 🧽 to stop.</span>
+              <span class="muted" style="margin:0 4px 0 6px">Size</span>
+              <input type="range" id="brush" min="0.02" max="0.22" step="0.005" value="0.07" style="flex:1;min-width:90px;accent-color:var(--pf-gold);cursor:pointer">
+              <span class="muted" style="margin:6px 0 0;width:100%">Drag to rub out or paint back. Tap 🧽 to stop.</span>
             </div>
             <div class="muted" id="selnote">Nothing selected. Tap a piece to edit it.</div>
           </div>
@@ -1065,8 +1063,9 @@ function hitHandle(o,px,py){const h=handlePts(o),r=Math.max(20,CW*0.04);
 function pick(px,py){const l=objects.slice().sort(zsort);
   for(let i=l.length-1;i>=0;i--){const o=l[i],lo=toLocal(o,px,py);
     if(Math.abs(lo.x)<=o.baseW/2&&Math.abs(lo.y)<=o.baseH/2)return o;}return null;}
-function evtPt(e){const r=scene.getBoundingClientRect(),f=scene.width/r.width;
-  return {x:(e.clientX-r.left)*f,y:(e.clientY-r.top)*f};}
+function evtPt(e){const r=scene.getBoundingClientRect();
+  const fx=scene.width/r.width, fy=scene.height/r.height;
+  return {x:(e.clientX-r.left)*fx,y:(e.clientY-r.top)*fy};}
 function eraseAt(p){const o=selected;if(!o)return;
   const lo=toLocal(o,p.x,p.y), sxr=o.cw/o.baseW, syr=o.ch/o.baseH;
   const cx=(lo.x+o.baseW/2)*sxr, cy=(lo.y+o.baseH/2)*syr;
@@ -1187,8 +1186,9 @@ function setErase(on){eraseMode=on;if(on)setWand(false);eraseBtn.classList.toggl
 function setWand(on){wandMode=on;if(on){eraseMode=false;eraseBtn.classList.remove('act');eraseBar.classList.remove('on');cursor=null;drawHandles();}
   if(wandBtn)wandBtn.classList.toggle('act',on);ui.style.cursor=on?'crosshair':(eraseMode?'none':'');}
 eraseBtn.onclick=()=>setErase(!eraseMode);
-document.querySelectorAll('.ebtn').forEach(b=>b.onclick=()=>{brush=parseFloat(b.dataset.br);
-  document.querySelectorAll('.ebtn').forEach(x=>x.classList.remove('act'));b.classList.add('act');});
+(function(){const bs=document.getElementById('brush');if(!bs)return;
+  brush=parseFloat(bs.value);
+  bs.addEventListener('input',()=>{brush=parseFloat(bs.value);if(eraseMode)drawHandles();});})();
 document.querySelectorAll('.kbtn').forEach(b=>b.onclick=()=>{eraseKind=b.dataset.kind;
   document.querySelectorAll('.kbtn').forEach(x=>x.classList.remove('act'));b.classList.add('act');});
 if(wandBtn)wandBtn.onclick=()=>setWand(!wandMode);
