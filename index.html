@@ -945,7 +945,7 @@
     btn.addEventListener('click',function(){
       if(!authUser){
         btn.disabled=true; msg.textContent='Opening X sign-in\u2026';
-        client.auth.signInWithOAuth({provider:'twitter',options:{redirectTo:location.href.split('#')[0].split('?')[0]}})
+        client.auth.signInWithOAuth({provider:'x',options:{redirectTo:location.href.split('#')[0].split('?')[0]}})
           .then(function(res){ if(res&&res.error){msg.textContent='Could not start X sign-in: '+res.error.message; btn.disabled=false;} });
         return;
       }
