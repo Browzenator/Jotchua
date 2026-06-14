@@ -902,6 +902,9 @@
     var authUser=null;
     handleIn.readOnly=true;
     handleIn.placeholder='Sign in with X to verify your @';
+    /* the verified handle already includes its own @, so drop the old fixed prefix */
+    var atPrefix=document.querySelector('.sit-handle-wrap .sit-at');
+    if(atPrefix) atPrefix.style.display='none';
 
     function xHandle(u){
       if(!u) return '';
