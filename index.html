@@ -239,6 +239,7 @@
     box-shadow:0 5px 14px rgba(0,0,0,.5);border:1px solid #c9b585;max-width:86vw;
   }
   .lb .lb-placard .t{font-family:'Cinzel',serif;font-weight:700;font-size:16px;letter-spacing:.04em;}
+  .at-sym{font-family:'EB Garamond',serif;font-weight:500;font-size:.9em;letter-spacing:0;opacity:.8;margin-right:.04em;vertical-align:.02em;}
   .lb .lb-placard .m{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--oxblood);margin-top:2px;}
   .lb .lb-close{
     position:absolute;top:18px;right:22px;
@@ -348,16 +349,23 @@
   .sit-row{display:flex;gap:12px;justify-content:center;align-items:stretch;flex-wrap:wrap;}
   .sit-file{position:relative;display:inline-flex;align-items:center;cursor:pointer;}
   .sit-file input{position:absolute;inset:0;opacity:0;cursor:pointer;}
-  .sit-file span,.sit-handle{
+  .sit-file span,.sit-handle-wrap{
     font-family:'EB Garamond',serif;font-size:15px;color:var(--ink);
     background:rgba(255,252,240,.7);border:1px solid #b5a274;border-radius:3px;
     padding:11px 16px;min-width:200px;text-align:left;
+  }
+  .sit-handle-wrap{display:inline-flex;align-items:center;gap:1px;}
+  .sit-handle-wrap:focus-within{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,162,75,.35);}
+  .sit-at{color:rgba(42,32,22,.7);font-weight:600;-webkit-user-select:none;user-select:none;}
+  .sit-handle{
+    font-family:inherit;font-size:inherit;color:var(--ink);
+    background:none;border:0;padding:0;margin:0;flex:1;min-width:0;outline:none;
   }
   .sit-handle::placeholder{color:rgba(42,32,22,.45);font-style:italic;}
   .sit-msg{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;margin-top:14px;min-height:1.2em;color:var(--oxblood);}
   .sit-alt{font-size:14px;opacity:.65;margin-top:12px;}
   .sit-alt a{border-bottom:1px solid rgba(90,36,32,.4);color:var(--oxblood);}
-  @media(max-width:560px){.sit-row{flex-direction:column;}.sit-file span,.sit-handle{width:100%;min-width:0;}}
+  @media(max-width:560px){.sit-row{flex-direction:column;}.sit-file span,.sit-handle-wrap{width:100%;min-width:0;}}
 
   /* collection accordion */
   .col-toggle{display:flex;justify-content:center;margin:8px 0 4px;}
@@ -540,7 +548,10 @@
           <input type="file" id="sit-file" accept="image/*" />
           <span id="sit-file-name">Choose your portrait…</span>
         </label>
-        <input type="text" id="sit-handle" class="sit-handle" maxlength="40" placeholder="Your 𝕏 handle (@you) — links to your profile" />
+        <label class="sit-handle-wrap">
+          <span class="sit-at" aria-hidden="true">@</span>
+          <input type="text" id="sit-handle" class="sit-handle" maxlength="15" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="your 𝕏 username — links to your profile" aria-label="Your 𝕏 username, without the @ — the handle on your profile" />
+        </label>
         <button id="sit-btn" class="plaque" type="button">Submit for Approval</button>
       </div>
       <div id="sit-msg" class="sit-msg" role="status" aria-live="polite"></div>
@@ -758,6 +769,18 @@
     var configured = SUPABASE_URL.indexOf('supabase.co')>-1 && SUPABASE_ANON_KEY.length>30 && window.supabase;
     var client = configured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
+    /* render a label with a leading @ shown in a cleaner face than Cinzel */
+    function atLabel(el, label){
+      el.textContent='';
+      if(/^@/.test(label)){
+        var at=document.createElement('span'); at.className='at-sym'; at.textContent='@';
+        el.appendChild(at);
+        el.appendChild(document.createTextNode(label.slice(1)));
+      }else{
+        el.textContent=label;
+      }
+    }
+
     function hang(src, handle){
       var f=document.createElement('div');
       f.className='wf'; f.setAttribute('role','button'); f.setAttribute('tabindex','0');
@@ -773,12 +796,12 @@
       img.src=src; img.alt=label; img.loading='lazy';
       mat.appendChild(img);
       f.appendChild(mat);
-      var tag=document.createElement('div'); tag.className='wf-tag'; tag.textContent=label;
+      var tag=document.createElement('div'); tag.className='wf-tag'; atLabel(tag,label);
       f.appendChild(tag);
       function show(){
         document.getElementById('lb-img').src=src;
         document.getElementById('lb-img').alt='Portrait of '+label;
-        document.getElementById('lb-t').textContent=label;
+        atLabel(document.getElementById('lb-t'),label);
         var m=document.getElementById('lb-m');
         m.textContent='';
         if(isHandle){
@@ -839,6 +862,11 @@
     fileIn.addEventListener('change',function(){
       fileName.textContent=fileIn.files[0]?fileIn.files[0].name:'Choose your portrait\u2026';
     });
+    /* the @ is a fixed prefix in the UI \u2014 keep the field to a clean X username */
+    handleIn.addEventListener('input',function(){
+      var v=handleIn.value.replace(/^@+/,'').replace(/[^A-Za-z0-9_]/g,'').slice(0,15);
+      if(v!==handleIn.value)handleIn.value=v;
+    });
     btn.addEventListener('click',function(){
       var f=fileIn.files[0];
       if(!f){msg.textContent='Choose an image first \u2014 the frame cannot hang empty.';return;}
@@ -846,7 +874,8 @@
       if(f.size>4*1024*1024){msg.textContent='Canvas too large \u2014 keep it under 4 MB.';return;}
       var ext=(f.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,5)||'jpg';
       var path=(window.crypto&&crypto.randomUUID?crypto.randomUUID():'p'+Date.now()+Math.random().toString(36).slice(2,8))+'.'+ext;
-      var who=(handleIn.value||'A Jotchuan').trim().slice(0,40);
+      var uname=(handleIn.value||'').replace(/^@+/,'').replace(/[^A-Za-z0-9_]/g,'').slice(0,15);
+      var who=uname?('@'+uname):'A Jotchuan';
       btn.disabled=true; msg.textContent='Carrying your canvas to the curator\u2026';
       client.storage.from('wall').upload(path,f,{contentType:f.type})
         .then(function(up){
