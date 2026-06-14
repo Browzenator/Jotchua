@@ -315,6 +315,17 @@
   .wf-mat{position:absolute;inset:0;overflow:hidden;border-radius:10px;}
   .wf-mat img{width:100%;height:100%;object-fit:cover;display:block;}
   .wf:hover{transform:translateY(-4px);box-shadow:0 16px 32px rgba(0,0,0,.55);z-index:2;}
+  .wf-tag{
+    position:absolute;left:0;right:0;bottom:0;z-index:3;
+    padding:20px 10px 9px;
+    font-family:'Cinzel',serif;font-size:11.5px;letter-spacing:.06em;
+    color:var(--gold-lt);text-align:center;
+    background:linear-gradient(to top, rgba(8,5,3,.94), rgba(8,5,3,.55) 55%, transparent);
+    opacity:0;transform:translateY(9px);
+    transition:opacity .28s ease, transform .28s ease;
+    pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .wf:hover .wf-tag,.wf:focus .wf-tag,.wf:focus-visible .wf-tag{opacity:1;transform:translateY(0);}
   .wall-empty{
     max-width:560px;margin:36px auto 0;text-align:center;
     background:radial-gradient(ellipse at 30% 20%, #f7eed2, #e8d9b4 70%, #dcc99e 100%);
@@ -323,7 +334,7 @@
     font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;line-height:1.6;
   }
   .wing-cta{display:flex;justify-content:center;margin-top:34px;}
-  @media (prefers-reduced-motion: reduce){.wf{transition:none;}.wf:hover{transform:none;}}
+  @media (prefers-reduced-motion: reduce){.wf{transition:none;}.wf:hover{transform:none;}.wf-tag{transition:none;transform:none;}}
 
   /* sit for the salon — submission card */
   .sit-card{
@@ -452,10 +463,10 @@
     <div class="nav-links">
       <a href="#provenance">Provenance</a>
       <a href="#collection">The Wall</a>
-      <a href="#studio">Create Your Jotchuans</a>
-      <a href="#ledger">Chart</a>
+      <a href="#studio">Studio</a>
+      <a href="#ledger">Ledger</a>
       <a href="#acquire">Acquire</a>
-      <a href="https://x.com/JotchuaTheMeme" target="_blank" rel="noopener">The Salon</a>
+      <a href="https://x.com/JotchuaTheMeme" target="_blank" rel="noopener">Main Page</a>
       <a href="https://pump.fun/coin/BcHEaaTCvycPwwsJ9yQTXdHP9X2gCLkznDbZ8VySpump" target="_blank" rel="noopener" class="plaque">Buy $JOTCHUA</a>
     </div>
   </nav>
@@ -570,8 +581,9 @@
             <input type="file" id="up-shirt" accept="image/*" multiple>
             <input type="file" id="up-eyewear" accept="image/*" multiple>
             <input type="file" id="up-item" accept="image/*" multiple>
-            <div class="muted">Find any image, cut it to a transparent PNG, and upload it to a category — it drops onto the right spot. Then move, size, spin &amp; erase to fit.</div>
-            <button class="btn wide" id="strip" style="margin-top:11px">⟲ Clear all</button>
+            <div class="muted">Upload any image to a category — the background is removed automatically, then it drops onto the right spot. Move, size, spin &amp; erase to fit. Works best on plain backgrounds.</div>
+            <label class="toggle" style="margin-top:11px"><input type="checkbox" id="optBg" checked> Auto-remove background on upload</label>
+            <button class="btn wide" id="strip" style="margin-top:10px">⟲ Clear all</button>
           </div>
 
           <div class="group">
@@ -583,6 +595,7 @@
               <button class="btn" id="front">⤒ Front</button>
               <button class="btn" id="back">⤓ Back</button>
               <button class="btn" id="reset">↺ Reset</button>
+              <button class="btn" id="cutbg">🪄 Cut BG</button>
               <button class="btn ox" id="del">✕ Delete</button>
             </div>
             <div class="erasebar" id="erasebar">
@@ -651,9 +664,9 @@
 
   <footer>
     <h2 class="serif">JOIN THE JOTCHUANS</h2>
-    <p class="tag">"He has history."</p>
+    <p class="tag">"Woof. Woof."</p>
     <div class="seals">
-      <a href="https://x.com/JotchuaTheMeme" target="_blank" rel="noopener">𝕏 · The Salon</a>
+      <a href="https://x.com/JotchuaTheMeme" target="_blank" rel="noopener">𝕏 · Main Page</a>
       <a href="https://x.com/i/communities/2024722566188060994" target="_blank" rel="noopener">𝕏 · The Society</a>
       <a href="https://memedepot.com/d/jotchua" target="_blank" rel="noopener">The Print Room</a>
       <a href="https://dexscreener.com/solana/akqyqgeifbbhqmanukzrrurgokskkbv8nvdccc87frr8" target="_blank" rel="noopener">The Ledger</a>
@@ -759,6 +772,8 @@
       img.src=src; img.alt=label; img.loading='lazy';
       mat.appendChild(img);
       f.appendChild(mat);
+      var tag=document.createElement('div'); tag.className='wf-tag'; tag.textContent=label;
+      f.appendChild(tag);
       function show(){
         document.getElementById('lb-img').src=src;
         document.getElementById('lb-img').alt='Portrait of '+label;
@@ -907,7 +922,8 @@ const SIZE=900; let CW=SIZE, CH=SIZE;
 scene.width=CW; scene.height=CH; ui.width=CW; ui.height=CH;
 const box={cx:CW/2, topY:0, pupW:CW, pupH:CH};   // items anchor to whole canvas
 let baseImg=null, objects=[], selected=null, uid=1;
-let eraseMode=false, brush=0.07;
+let eraseMode=false, brush=0.07, cursor=null;
+const BG_THRESH=66;  /* background-removal colour tolerance (Euclidean distance) */
 function makeCanvas(src,w,h){const c=document.createElement('canvas');c.width=w;c.height=h;
   c.getContext('2d').drawImage(src,0,0,w,h);return c;}
 function nextZ(){return objects.length?Math.max(...objects.map(o=>o.z))+1:9;}
@@ -943,7 +959,14 @@ function toScene(o,lx,ly){const s=o.scale,fx=o.flip?-1:1,c=Math.cos(o.rot),si=Ma
 function toLocal(o,px,py){const dx=px-o.x,dy=py-o.y,c=Math.cos(-o.rot),si=Math.sin(-o.rot);
   let x=dx*c-dy*si,y=dx*si+dy*c;x=x/o.scale*(o.flip?-1:1);y=y/o.scale;return {x,y};}
 function handlePts(o){const c=corners(o);return {rot:c[2],del:c[1]};}
-function drawHandles(){ux.clearRect(0,0,CW,CH);if(!selected)return;
+function drawHandles(){ux.clearRect(0,0,CW,CH);
+  if(eraseMode&&cursor){const br=brush*CW;ux.save();
+    ux.beginPath();ux.arc(cursor.x,cursor.y,br,0,7);
+    ux.lineWidth=Math.max(2,CW*0.005);ux.strokeStyle='rgba(0,0,0,.55)';ux.stroke();
+    ux.lineWidth=Math.max(1.5,CW*0.003);ux.strokeStyle='rgba(244,221,150,.95)';ux.stroke();
+    ux.fillStyle='rgba(244,221,150,.9)';ux.beginPath();ux.arc(cursor.x,cursor.y,Math.max(2,CW*0.006),0,7);ux.fill();
+    ux.restore();}
+  if(!selected)return;
   const o=selected,c=corners(o),h=handlePts(o),r=Math.max(16,CW*0.026);ux.save();
   ux.strokeStyle='rgba(201,162,75,.95)';ux.lineWidth=Math.max(2,CW*0.004);ux.setLineDash([CW*0.018,CW*0.012]);
   ux.beginPath();ux.moveTo(c[0].x,c[0].y);for(let i=1;i<4;i++)ux.lineTo(c[i].x,c[i].y);ux.closePath();ux.stroke();ux.setLineDash([]);
@@ -977,6 +1000,7 @@ function addUpload(slot,files){setErase(false);
       const d=SLOT_DEF[slot]||SLOT_DEF.item;
       const o={id:uid++,slot,img,canvas:makeCanvas(img,w,h),cw:w,ch:h,baseW:w,baseH:h,
         z:d.z||4,x:0,y:0,rot:0,flip:false,scale:1};
+      if(document.getElementById('optBg').checked) removeBg(o.canvas,BG_THRESH);
       applyDefault(o);o.x+=idx*36;o.y+=idx*36;objects.push(o);select(o);render();};
       img.src=r.result;};
     r.readAsDataURL(f);});
@@ -988,14 +1012,14 @@ function updateSel(){const bar=document.getElementById('selbar'),note=document.g
 /* ---------- pointer ---------- */
 const pointers=new Map();let mode=null,g=null;
 ui.addEventListener('pointerdown',e=>{ui.setPointerCapture(e.pointerId);const p=evtPt(e);pointers.set(e.pointerId,p);
-  if(eraseMode&&selected){mode='erase';eraseAt(p);return;}
+  if(eraseMode&&selected){mode='erase';cursor=p;eraseAt(p);return;}
   if(pointers.size===2&&selected){const pts=[...pointers.values()];
     g={d:dist(pts[0],pts[1]),a:ang(pts[0],pts[1]),s:selected.scale,r:selected.rot,mid:mid(pts[0],pts[1]),ox:selected.x,oy:selected.y};mode='gesture';return;}
   if(selected){const h=hitHandle(selected,p.x,p.y);if(h==='del'){mode='maybedel';return;}
     if(h==='rot'){mode='rotscale';g={d:dist({x:selected.x,y:selected.y},p),a:Math.atan2(p.y-selected.y,p.x-selected.x),s:selected.scale,r:selected.rot};return;}}
   const o=pick(p.x,p.y);if(o){select(o);mode='drag';g={dx:p.x-o.x,dy:p.y-o.y};}else{selected=null;setErase(false);updateSel();render();}});
 ui.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;const p=evtPt(e);pointers.set(e.pointerId,p);
-  if(mode==='erase'&&selected){eraseAt(p);return;}
+  if(mode==='erase'&&selected){cursor=p;eraseAt(p);return;}
   if(mode==='gesture'&&selected){const pts=[...pointers.values()];const nd=dist(pts[0],pts[1]),na=ang(pts[0],pts[1]),nm=mid(pts[0],pts[1]);
     selected.scale=Math.max(0.05,g.s*(nd/g.d));selected.rot=g.r+(na-g.a);selected.x=g.ox+(nm.x-g.mid.x);selected.y=g.oy+(nm.y-g.mid.y);render();
   }else if(mode==='drag'&&selected){selected.x=p.x-g.dx;selected.y=p.y-g.dy;render();
@@ -1022,7 +1046,7 @@ document.getElementById('reset').onclick=()=>{if(!selected)return;
   c.drawImage(selected.img,0,0,selected.cw,selected.ch);
   applyDefault(selected);render();};
 const eraseBtn=document.getElementById('erase'), eraseBar=document.getElementById('erasebar');
-function setErase(on){eraseMode=on;eraseBtn.classList.toggle('act',on);eraseBar.classList.toggle('on',on);drawHandles();}
+function setErase(on){eraseMode=on;eraseBtn.classList.toggle('act',on);eraseBar.classList.toggle('on',on);ui.style.cursor=on?'none':'';if(!on)cursor=null;drawHandles();}
 eraseBtn.onclick=()=>setErase(!eraseMode);
 document.querySelectorAll('.ebtn').forEach(b=>b.onclick=()=>{brush=parseFloat(b.dataset.br);
   document.querySelectorAll('.ebtn').forEach(x=>x.classList.remove('act'));b.classList.add('act');});
@@ -1050,6 +1074,33 @@ document.getElementById('share').onclick=()=>exportBlob(async b=>{const file=new
 document.getElementById('tweet').onclick=()=>{document.getElementById('download').click();
   const t=encodeURIComponent('my $JOTCHUA pfp 🐶\n\njotchua.net');
   setTimeout(()=>window.open(`https://twitter.com/intent/tweet?text=${t}`,'_blank'),400);};
+
+/* ---------- background removal (edge flood-fill from the corners) ---------- */
+function removeBg(canvas,thresh){
+  const w=canvas.width,h=canvas.height,ctx=canvas.getContext('2d');
+  const img=ctx.getImageData(0,0,w,h),d=img.data,N=w*h;
+  function smp(x,y){const i=(y*w+x)*4;return [d[i],d[i+1],d[i+2],d[i+3]];}
+  const cs=[smp(0,0),smp(w-1,0),smp(0,h-1),smp(w-1,h-1)];
+  let rr=0,gg=0,bb=0,n=0;
+  cs.forEach(c=>{if(c[3]>10){rr+=c[0];gg+=c[1];bb+=c[2];n++;}});
+  if(n){rr/=n;gg/=n;bb/=n;}
+  const t2=thresh*thresh, vis=new Uint8Array(N), st=new Int32Array(N); let sp=0;
+  function consider(x,y){if(x<0||y<0||x>=w||y>=h)return;const idx=y*w+x;if(vis[idx])return;vis[idx]=1;
+    const i=idx*4,a=d[i+3];
+    if(a<10){d[i+3]=0;st[sp++]=idx;return;}
+    const dr=d[i]-rr,dg=d[i+1]-gg,db=d[i+2]-bb;
+    if(dr*dr+dg*dg+db*db<=t2){d[i+3]=0;st[sp++]=idx;}}
+  for(let x=0;x<w;x++){consider(x,0);consider(x,h-1);}
+  for(let y=0;y<h;y++){consider(0,y);consider(w-1,y);}
+  while(sp){const idx=st[--sp],x=idx%w,y=(idx/w)|0;
+    consider(x+1,y);consider(x-1,y);consider(x,y+1);consider(x,y-1);}
+  ctx.putImageData(img,0,0);
+}
+document.getElementById('cutbg').onclick=()=>{if(selected){removeBg(selected.canvas,BG_THRESH);render();}};
+
+/* eraser cursor — a brush-sized ring follows the pointer */
+ui.addEventListener('pointermove',e=>{cursor=evtPt(e);if(eraseMode)drawHandles();});
+ui.addEventListener('pointerleave',()=>{cursor=null;if(eraseMode)drawHandles();});
 
 /* ---------- boot ---------- */
 const b=new Image();b.onload=()=>{baseImg=b;render();};b.src=BASE.data;
