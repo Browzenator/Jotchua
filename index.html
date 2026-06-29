@@ -1295,7 +1295,10 @@ if(wandBtn)wandBtn.onclick=()=>setWand(!wandMode);
 
 /* ---------- AI generation (calls the Vercel /api/generate function) ---------- */
 (function(){
-  const ENDPOINT='/api/generate';
+  const _CFG=window.JOTCHUA_CONFIG||{};
+  const SUPA_URL=(_CFG.SUPABASE_URL||'').replace(/\/$/,'');
+  const SUPA_KEY=_CFG.SUPABASE_ANON_KEY||'';
+  const ENDPOINT=SUPA_URL?(SUPA_URL+'/functions/v1/generate'):'/api/generate';
   const promptEl=document.getElementById('ai-prompt');
   const goEl=document.getElementById('ai-go');
   const statusEl=document.getElementById('ai-status');
@@ -1312,7 +1315,8 @@ if(wandBtn)wandBtn.onclick=()=>setWand(!wandMode);
     busy=true;goEl.disabled=true;goEl.textContent='Generating…';
     status('Generating your Jotchua… this can take 10-30 seconds.');
     try{
-      const res=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+      const ref=(typeof BASE!=='undefined'&&BASE&&BASE.data)?BASE.data:undefined;
+      const res=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPA_KEY,'apikey':SUPA_KEY},body:JSON.stringify({prompt,image:ref})});
       if(!res.ok){
         let m=(res.status===429)?'Too many requests — give it a minute.':'Generation failed.';
         try{const e=await res.json();if(e&&e.error)m=e.error;}catch(_){}
